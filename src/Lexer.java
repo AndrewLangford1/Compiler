@@ -31,8 +31,12 @@ public class Lexer {
 			//iterate over source file
 			while(scanner.hasNextLine()){
 				lineCount ++;
-				line = scanner.nextLine();
-				System.out.println(tokenizer.tokenMatch(line));
+				line = scanner.nextLine();				
+				//split line on whitespace, unless whitespace is contained between quotes
+				String[] parsedLine = line.split(RegexMatchers.REGEXES.get("whitespace"));
+				for(String x : parsedLine){
+					tokenizer.tokenMatch(x);
+				}
 			}
 			
 			scanner.close();

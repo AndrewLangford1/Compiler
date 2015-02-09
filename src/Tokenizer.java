@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.HashMap;
 
 
 
@@ -12,39 +13,48 @@ public class Tokenizer {
 	}
 	
 	
-	public String tokenMatch(String toMatch){
-		//string to hold tempory substring found by match
-		String temp = new String();
+	public void tokenMatch(String toMatch){		
+		//pull regex table
+		HashMap<String,String> regexMap = RegexMatchers.REGEXES;
+		
+		//string to hold temporary substring found by match
+		String token = new String();
+		
+		//string to hold the max length token
+		String ret = new String();
+		
+		//String to hold longest matched regex key
+		String tokenMatcher = new String();
+		
 		
 		//holds length of current longest match
 		int max = 0;
-		
-		//returnable string
-		String ret = new String();
-		
+
 		//iterate over all patterns to find max
-		for(String x : RegexMatchers.PATTERNS){
+		for(String key : regexMap.keySet()){
+			
+			//grab regex
+			String thePattern = regexMap.get(key);
 			
 			//declare our pattern
-			Pattern pattern = Pattern.compile(x);
+			Pattern pattern = Pattern.compile(thePattern);
 			
 			//check to see if pattern matches current string
 			Matcher matcher = pattern.matcher(toMatch);
 			
 			//if we find a match, see if it is the current longest match
 			if(matcher.find()){
-				temp = matcher.group();
-				if(temp.length() > max){
-					max = temp.length();
+				token = matcher.group();
+				if(token.length() > max){
+					tokenMatcher = key;
+					max = token.length();
+					ret = token;
 				}
 			}
 		}
-		
-		return ret;
+		System.out.println("TokenString: " + ret + "  Type: " + tokenMatcher);
+	
+		String[] restOfString = toMatch.split(tokenMatcher);
 	}
-	
-
-	
-	
 	
 }
