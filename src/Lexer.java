@@ -21,29 +21,19 @@ public class Lexer {
 		
 			scanner = new Scanner(source);
 			
-			String line = new String();
-			
-			//tracks the current line #
-			int lineCount = 0;
+			String token = new String();
 			
 			Tokenizer tokenizer = new Tokenizer();
 			
 			//iterate over source file
-			while(scanner.hasNextLine()){
-				lineCount ++;
-				line = scanner.nextLine();				
-				//split line on whitespace, unless whitespace is contained between quotes
-				String[] parsedLine = line.split(RegexMatchers.REGEXES.get("whitespace"));
-				for(String x : parsedLine){
-					tokenizer.tokenMatch(x);
-				}
+			while(scanner.hasNext()){
+				token = scanner.next();				
+				tokenizer.tokenMatch(token);
 			}
 			
 			scanner.close();
 		} catch(Exception ex){
-			System.out.println(ex);
-			
-			
+			System.out.println(ex);	
 		}
 	}
 

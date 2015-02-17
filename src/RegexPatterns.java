@@ -1,6 +1,6 @@
 import java.util.HashMap;
 
-public class RegexMatchers{
+public class RegexPatterns{
 
 //This class is simply a namespace for regular expression strings
 //they match strings in the Final Project Grammar.
@@ -21,7 +21,7 @@ public class RegexMatchers{
 		REGEXES.put("singlechar","[a-z]" );
 		
 		//CHARLIST
-		//REGEXES.put("charlist", "\"(?<=\")(?:\\.|[^\"\\])*(?=\")\"");
+		REGEXES.put("charlist", "(\"[a-z]*\")|(\"\")|(\"[a-z]*\\s*\")|(\"\\s*\")|(\"\\s*[a-z]*\")|(\"\\s*[a-z]*\\s*\")");
 		
 		REGEXES.put("quote", "");
 		
