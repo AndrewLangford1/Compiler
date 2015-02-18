@@ -25,8 +25,21 @@ public class Tokenizer {
 	public void run(String unlexedToken){
 		try{
 			//Try and Match all of the tokens char by char that are coming in from Lex
-			for(int i =0; i < unlexedToken.length(); i++){
-				tokenMatch(String.valueOf(unlexedToken.charAt(i)),unlexedToken.substring(i), i, unlexedToken.length());
+			//keep matching tokens until empty
+			while(!unlexedToken.isEmpty()){
+				
+				//match a token 
+				Token lexedToken = tokenMatch(String.valueOf(unlexedToken.charAt(0)),unlexedToken.substring(0), 0, unlexedToken.length());
+				
+				if(!lexedToken.getValue().isEmpty()){
+					
+					//chop found tokens off the head of our unlexed token
+					unlexedToken = unlexedToken.substring(lexedToken.getValue().length()-1, unlexedToken.length()-1);
+				}
+				else{
+					unlexedToken = unlexedToken.substring(1, unlexedToken.length()-1);
+				}
+				
 			}
 		} 
 		catch(Exception ex){
@@ -40,10 +53,10 @@ public class Tokenizer {
 	//restOfToken = rest of string trying to lex, to be used for character lookahead
 	//currentIndex = current position of toMatch in respect to whole token length
 	//tokenLength = entire token length
-	public void tokenMatch(String toMatch, String restOfToken, int currentIndex, int tokenLength){
+	public Token tokenMatch(String toMatch, String restOfToken, int currentIndex, int tokenLength){
 		//new token to be added to the token stream
 		Token token = new Token();
-		System.out.println("The rest:  " + restOfToken);
+		//System.out.println("The rest:  " + restOfToken);
 		try{
 			//If we aren't inside of a string, we aren't concerned with empty strings
 			if(!isInsideString && !toMatch.isEmpty()){
@@ -56,6 +69,7 @@ public class Tokenizer {
 				}
 				
 				if(toMatch.matches(RegexPatterns.Regs.SINGLECHAR.getPattern())){
+					token = matchIdentifier(toMatch, restOfToken, currentIndex, tokenLength);
 				}
 				
 			}
@@ -73,51 +87,98 @@ public class Tokenizer {
 			System.out.println(ex);
 	
 		}
+		
+		return token;
 	}
 
 	//this function will match ID types, but also match reserved words
-	public void matchIdentifier(String toMatch, String restOfToken, int currentIndex, int tokenLength){
-		System.out.println("Lexing: " + restOfToken + "\n Currently at char: " + toMatch);
+	public Token matchIdentifier(String toMatch, String restOfToken, int currentIndex, int tokenLength){
 		
-		//lookahead buffer
-		String lookAhead = toMatch;
+		Token tempToken = new Token();
 		
-		//temp next char string;
-		String nextChar;
-		
-		int tempCode;
-		int bestRegexMatch = 0;
-		
-		//lookahead to see if we can match a reserved word, instead of returning IDs
-		for(int i =1; i<= restOfToken.length(); i++){
+		try{
+			System.out.println("Lexing: " + restOfToken + "\nCurrently at char: " + toMatch);
 			
-			//get the next character on the token
-			nextChar = String.valueOf(restOfToken.charAt(i));
+			//lookahead buffer
+			String lookAhead = toMatch;
+			System.out.println("lookahead: " + lookAhead);
+			String matched = new String();
 			
-			//if the next character is [a-z], then add this character onto the lookahead string
-			if(nextChar.matches(RegexPatterns.Regs.SINGLECHAR.getPattern())){
-				lookAhead+=nextChar;
+			//temp next char string;
+			String nextChar;
+			
+			//keeps track of the regex code that currently matches the lookahead
+			int tempCode;
+			
+			//denotes the code for best regex match (for reserved word matches only)
+			int bestRegexMatch = 0;
+			
+			//lookahead to see if we can match a reserved word, instead of returning IDs
+			for(int i =1; i<= restOfToken.length(); i++){
+				System.out.println("index: " + i +"\nRestOfToken: " +restOfToken + "\nLengthToken: " + restOfToken.length());
 				
-				//see if this string matches a reserved word
-				tempCode = reservedMatcher(lookAhead);
+				//get the next character on the token
+				nextChar = String.valueOf(restOfToken.charAt(i));
+				System.out.println("Next Char: " + nextChar);
 				
-				//if the string matches a reserved word, get the code of that regex.
-				//we know that after every iteration of the for loop that the lookahead is longer than the previous attempted match.
-				//therefore, the longest match is stored in bestRegexMatch after each iteration.
-				if(tempCode > 0){
-					bestRegexMatch = tempCode;
+				//if the next character is [a-z], then add this character onto the lookahead string
+				if(nextChar.matches(RegexPatterns.Regs.SINGLECHAR.getPattern())){
+					lookAhead+=nextChar;
+					
+					System.out.println("lookahead: " + lookAhead);
+					
+					//see if this string matches a reserved word
+					tempCode = reservedMatcher(lookAhead);
+					
+					System.out.println("tempCode: " + tempCode);
+					
+					//if the string matches a reserved word, get the code of that regex.
+					//we know that after every iteration of the for loop that the lookahead is longer than the previous attempted match.
+					//therefore, the longest match is stored in bestRegexMatch after each iteration.
+					if(tempCode > 0){
+						matched = lookAhead;
+						System.out.println("matched: " + matched);
+						bestRegexMatch = tempCode;
+						System.out.println("bestRegexMatch: " + bestRegexMatch);
+					}
+				}
+				
+				//if we get a non [a-z] character, stop looking ahead.
+				else{
+					break;
 				}
 			}
 			
-			//if we get a non [a-z] character, stop looking ahead.
-			else{
-				break;
+			//if we have a match for a reserved word, return that token instead of an ID
+			if(bestRegexMatch>0){
+				//set the regex match for this token
+				tempToken.setRegexCode(bestRegexMatch);
+				
+				//this token is of reserved type
+				tempToken.setType(Token.TokenType.RESERVED.getTokenCode());
+				
+				//set the value of this token
+				tempToken.setValue(matched);
 			}
+			else{
+				//regex match is just a char
+				tempToken.setRegexCode(RegexPatterns.Regs.SINGLECHAR.getCode());
+				
+				//return an identifier
+				tempToken.setType(Token.TokenType.IDENTIFIER.getTokenCode());
+				
+				//only return the single char to denote an ID
+				tempToken.setValue(toMatch);
+			}
+		} 
+		catch(Exception ex){
+			
+			System.out.println("error found in identifier function");
 		}
 		
-		//if we have a match for a reserved word, return that token instead of an ID
-		if(bestRegexMatch>0){
-		}
+		System.out.println("Temp Token: " + tempToken.regexCode + " " + tempToken.type + " " + tempToken.value);
+		
+		return tempToken;
 	}
 	
 	
@@ -128,6 +189,7 @@ public class Tokenizer {
 		//Note: Reserved words have to be unique. Therefore, the match found here is the best one. 
 		for(RegexPatterns.Regs x: RegexPatterns.RESERVED){
 			if(toMatch.matches(x.getPattern())){
+				//return the code of the Regex Match
 				return x.getCode();
 			}
 		}
