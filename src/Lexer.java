@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.*;
 
@@ -21,15 +22,16 @@ public class Lexer {
 		
 			scanner = new Scanner(source);
 			
-			String token = new String();
-			
-			Tokenizer tokenizer = new Tokenizer();
-			
+			ArrayList<String> tokens = new ArrayList<String>();
+	
 			//iterate over source file
 			while(scanner.hasNext()){
-				token = scanner.next();				
-				tokenizer.tokenMatch(token);
+				tokens.add(scanner.next());			
 			}
+			
+			Tokenizer tokenizer = new Tokenizer(tokens);
+			
+			tokenizer.run();
 			
 			scanner.close();
 		} catch(Exception ex){
