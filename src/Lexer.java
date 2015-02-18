@@ -22,19 +22,18 @@ public class Lexer {
 		
 			scanner = new Scanner(source);
 			
-			ArrayList<String> tokens = new ArrayList<String>();
-	
+			Tokenizer tokenizer = new Tokenizer();
+				
 			//iterate over source file
 			while(scanner.hasNext()){
-				tokens.add(scanner.next());			
+				tokenizer.run(scanner.next());			
 			}
 			
-			Tokenizer tokenizer = new Tokenizer(tokens);
-			
-			tokenizer.run();
+
 			
 			scanner.close();
 		} catch(Exception ex){
+			System.out.println("error found in main lex function");
 			System.out.println(ex);	
 		}
 	}

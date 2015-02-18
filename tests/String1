@@ -1,6 +1,5 @@
 {
-	\n\n\n\n
-    strings=1+4"" \n\n\n\n s
+	string s
     s = "h \s\n\s i"
     print(s)
 } $
