@@ -6,6 +6,11 @@ public class RegexPatterns{
 	
 		public static Regs[] RESERVED = {Regs.PRINTSTMT, Regs.WHILESTMT, Regs.IFSTATEMENT, Regs.INTTYPE,
 									Regs.BOOLEANTYPE, Regs.STRINGTYPE, Regs.BOOLEANVALUE};
+		
+		public static Regs[] SYMBOLS = {Regs.BLOCKLEFTCURLY, Regs.BLOCKRIGHTCURLY, Regs.DOUBLEQUOTE, Regs.LEFTPAREN,
+											Regs.RIGHTPAREN, Regs.ENDOFPROGRAM, Regs.BOOLEANEQUALS, Regs.BOOLEANNOTEQUALS, Regs.ASSIGNMENT,
+											Regs.ADDITION
+		};
 	
 		public enum Regs{
 			
@@ -80,7 +85,9 @@ public class RegexPatterns{
 		
 	
 			//INTEGER OPERATORS
-			ADDITION("[+]", 23);
+			ADDITION("[+]", 23),
+			
+			SYMBOL("[$]|[{]|[}]|[(]|[)]|[=]|[\"]|[!]|[+]", 24);
 			
 			
 		private String pattern;

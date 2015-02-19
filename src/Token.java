@@ -17,9 +17,11 @@ public class Token {
 	//list of possible token types
 	public enum TokenType{
 		IDENTIFIER(1), 
-		LITERAL(2), 
+		STRING(2), 
 		DIGIT(3), 
-		RESERVED(4);
+		RESERVED(4),
+		SYMBOL(5),
+		ERROR(6);
 		
 		private final int tokenCode;
 		
@@ -75,6 +77,14 @@ public class Token {
 	public void setRegexCode(int regexCode) {
 		this.regexCode = regexCode;
 	}
+
+	@Override
+	public String toString() {
+		return "Token [value=" + value + ", type=" + type + ", regexCode="
+				+ regexCode + "]";
+	}
+	
+	
 
 
 }
