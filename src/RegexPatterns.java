@@ -4,98 +4,102 @@ public class RegexPatterns{
 // for most current grammar definitions, see http://www.labouseur.com/courses/compilers/grammar.pdf
 		
 	
-		public static Regs[] RESERVED = {Regs.PRINTSTMT, Regs.WHILESTMT, Regs.IFSTATEMENT, Regs.INTTYPE,
-									Regs.BOOLEANTYPE, Regs.STRINGTYPE, Regs.BOOLEANVALUE};
+		public static RegX[] RESERVED = {RegX.PRINTSTMT, RegX.WHILESTMT, RegX.IFSTATEMENT, RegX.INTTYPE,
+									RegX.BOOLEANTYPE, RegX.STRINGTYPE, RegX.BOOLEANVALUE};
 		
-		public static Regs[] SYMBOLS = {Regs.BLOCKLEFTCURLY, Regs.BLOCKRIGHTCURLY, Regs.DOUBLEQUOTE, Regs.LEFTPAREN,
-											Regs.RIGHTPAREN, Regs.ENDOFPROGRAM, Regs.BOOLEANEQUALS, Regs.BOOLEANNOTEQUALS, Regs.ASSIGNMENT,
-											Regs.ADDITION
+		public static RegX[] SYMBOLS = {RegX.BLOCKLEFTCURLY, RegX.BLOCKRIGHTCURLY, RegX.LEFTPAREN,
+											RegX.RIGHTPAREN, RegX.ENDOFPROGRAM, RegX.BOOLEANEQUALS, RegX.BOOLEANNOTEQUALS, RegX.ASSIGNMENT,
+											RegX.ADDITION
 		};
 	
-		public enum Regs{
+		public enum RegX{
 			
 			
 			//Program
 			//denotes end of program
 			//ex: Block $
-			ENDOFPROGRAM("[$]", 1),
+			ENDOFPROGRAM("[$]", 1, "EOF"),
 			
 			//Block {}
 			//denotes new scope
-			BLOCKLEFTCURLY("[{]", 2),
-			BLOCKRIGHTCURLY("[}]", 3),
+			BLOCKLEFTCURLY("[{]", 2, "BLOCKLEFTCURLY"),
+			BLOCKRIGHTCURLY("[}]", 3, "BLOCKRIGHTCURLY"),
 			
 			//Print Statement
-			PRINTSTMT("print", 4),
-			
+			PRINTSTMT("print", 4, "PRINTSTATEMENT"),
+			 
 			//Assignment
-			ASSIGNMENT("=", 5),
+			ASSIGNMENT("=", 5, "ASSIGNMENT"),
 			
 			//LOOPS
 			//while statement
-			WHILESTMT("while", 6),
+			WHILESTMT("while", 6, "WHILELOOP"),
 			
 			//BRANCHING
 			//if statement
-			IFSTATEMENT("if", 7),
+			IFSTATEMENT("if", 7, "IFSTATEMENT"),
 			
 			//double quote, denotes beginning or end of strings.
-			DOUBLEQUOTE("\"", 8),
+			DOUBLEQUOTE("\"", 8, "DOUBLEQUOTE"),
 			
 			//CHARLIST
-			CHARLIST("(\"[a-z]*\")|(\"\")|(\"[a-z]*\\s*\")|(\"\\s*\")|(\"\\s*[a-z]*\")|(\"\\s*[a-z]*\\s*\")",9 ),
+			CHARLIST("(\"[a-z]*\")|(\"\")|(\"[a-z]*\\s*\")|(\"\\s*\")|(\"\\s*[a-z]*\")|(\"\\s*[a-z]*\\s*\")",9, "CHARLIST" ),
 			
 			//Parentheses
 			//used in print statement, boolean expressions
-			LEFTPAREN("[(]", 10),
-			RIGHTPAREN("[)]", 11),
+			LEFTPAREN("[(]", 10, "LEFTPARENT"),
+			RIGHTPAREN("[)]", 11, "RIGHTPAREN"),
 			
 			//TYPES
-			STRINGTYPE("string", 12),
-			BOOLEANTYPE("boolean", 13),
-			INTTYPE("int", 14),
+			STRINGTYPE("string", 12, "STRINGTYPE"),
+			BOOLEANTYPE("boolean", 13, "BOOLEANTYPE"),
+			INTTYPE("int", 14, "INTTYPE"),
 			
 			//CHAR/ID
-			SINGLECHAR("[a-z]", 15 ),
+			SINGLECHAR("[a-z]", 15, "CHAR" ),
 			
 	
 	
 			/////////////WHITESPACE///////////////////
 			
 			//tabs or spaces
-			WHITESPACE("[ ]+(?=([^\"]*\"[^\"]*\")*[^\"]*$)", 16),
+			WHITESPACE("[ ]+(?=([^\"]*\"[^\"]*\")*[^\"]*$)", 16, "WHITESPACE"),
 	
 			//newline characters like carriage return or newline
-			CARRIAGERETURN("\\r", 17),
-			NEWLINE("\\n", 18),
+			CARRIAGERETURN("\\r", 17, "CARRIAGEERETURN"),
+			NEWLINE("\\n", 18, "NEWLINE"),
+			TAB("\\t", 25, "TAB"),
+			
 	
 		
 			
 			//DIGIT
-			DIGIT("[0-9]{1}", 19),
+			DIGIT("[0-9]{1}", 19, "DIGIT"),
 			
 	
 			//BOOLEAN OPERATORS
-			BOOLEANEQUALS("==", 20),
-			BOOLEANNOTEQUALS("!=", 21),
+			BOOLEANEQUALS("==", 20, "BOOLEANEQUALS"),
+			BOOLEANNOTEQUALS("!=", 21, "BOOLEANNOTEQUALS"),
 			
 			//BOOLEAN VALUES
-			BOOLEANVALUE("true|false", 22),
+			BOOLEANVALUE("true|false", 22, "BOOLEANVALUE"),
 				
 		
 	
 			//INTEGER OPERATORS
-			ADDITION("[+]", 23),
+			ADDITION("[+]", 23, "ADDITION"),
 			
-			SYMBOL("[$]|[{]|[}]|[(]|[)]|[=]|[\"]|[!]|[+]", 24);
+			SYMBOL("[$]|[{]|[}]|[(]|[)]|[=]|[\"]|[!]|[+]", 24, "SYMBOL");
 			
 			
 		private String pattern;
 		private int code;
+		private String name;
 	
-		private Regs(String pattern, int code){
+		private RegX(String pattern, int code, String name){
 			this.pattern = pattern;
 			this.code = code;
+			this.name = name;
 		}
 	
 		public String getPattern(){
@@ -104,6 +108,11 @@ public class RegexPatterns{
 		
 		public int getCode(){
 			return this.code;
+		}
+		
+		public String getName(){
+			
+			return this.name;
 		}
 
 	}

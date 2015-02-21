@@ -12,12 +12,12 @@
             j = 1
         }
         
-        print("loop ")
+        print(1)
         print(i)
-        print(" ")
+        print(2)
         print(j)
-        print("  ")
+        print(3)
     }
     
-    print("done")
+    print(4)
 } $

@@ -39,7 +39,6 @@ public class Tokenizer {
 				if(!lexedToken.getValue().isEmpty()){
 					System.out.println("Matched a token");
 					//chop found tokens off the head of our unlexed token
-					
 					if(lexedToken.value.length()>1){
 						unlexedToken = unlexedToken.substring(lexedToken.getValue().length()-1, unlexedToken.length()-1);
 					}
@@ -82,48 +81,59 @@ public class Tokenizer {
 	public Token tokenMatch(String toMatch, String restOfToken){
 		//new token to be added to the token stream
 		Token token = new Token();
-		//System.out.println("The rest:  " + restOfToken);
 		try{
-			//If we aren't inside of a string, we aren't concerned with empty strings
+			//If we aren't inside of a string:
 			if(!isInsideString && !toMatch.isEmpty()){
 				
 				//TOKEN MATCH HIERARCHY, NOT STRING MODE
 				
 				//KEYWORDS,IDENTIFIERS
 				//Matches reserved words and identifiers. Reserved words take priority over identifiers.
-				if(toMatch.matches(RegexPatterns.Regs.SINGLECHAR.getPattern())){
+				if(toMatch.matches(RegexPatterns.RegX.SINGLECHAR.getPattern())){
 					token = tokenMatchIdentifier(toMatch, restOfToken);
+					return token;
+				}
+				
+				//STRINGS
+				if(toMatch.matches(RegexPatterns.RegX.DOUBLEQUOTE.getPattern())){
+					//enter string mode, create double quote token
+					token = beginStringMode(toMatch);
+					return token;
 				}
 				
 				//DIGITS
 				//check for digit token matches
-				if(toMatch.matches(RegexPatterns.Regs.DIGIT.getPattern())){
-					token = matchDigit(toMatch);
+				if(toMatch.matches(RegexPatterns.RegX.DIGIT.getPattern())){
+					token = tokenMatchDigit(toMatch);
+					return token;
 					
 				}
 				
-				
-				if(toMatch.matches(RegexPatterns.Regs.SYMBOL.getPattern())){
+				//SYMBOLS
+				//Matches Symbols
+				if(toMatch.matches(RegexPatterns.RegX.SYMBOL.getPattern())){
 					token = tokenSymbolMatcher(toMatch, restOfToken);
-					
+					return token;
 				}
+				
+				
 				
 			}
-			
-			
-			//temporary statements for debugging purposes. Simply prints out the tokens
-			if(!token.getValue().isEmpty()){
-				//System.out.println("<value: " + token.getValue() +" type: " + token.type + ">");
+			else{
+				//STRING MODE
+				
+				
+				
+				
 			}
 		}
-		
-	
 		catch(Exception ex){
 			System.out.println("error found in token match function");
 			System.out.println(ex);
-	
 		}
 		
+		
+		//if we get here, we know there's a lex error
 		return token;
 	}
 
@@ -131,12 +141,16 @@ public class Tokenizer {
 	
 	
 	
-	
-	public Token matchDigit(String toMatch){
+	//Creates a digit token from the provided String
+	public Token tokenMatchDigit(String toMatch){
+		
+		//build token object
 		Token tempToken = new Token();
 		tempToken.value = toMatch ;
 		tempToken.type = Token.TokenType.DIGIT.getTokenCode();
-		tempToken.regexCode = RegexPatterns.Regs.DIGIT.getCode();
+		tempToken.regexCode = RegexPatterns.RegX.DIGIT.getCode();
+		tempToken.regexName = RegexPatterns.RegX.DIGIT.getName();
+		
 		return tempToken;
 	}
 	
@@ -155,77 +169,83 @@ public class Tokenizer {
 		try{
 			System.out.println("Reserved/Identifier Lexing: " + restOfToken + "\nCurrently at char: " + toMatch);
 			
-			//lookahead buffer
-			String lookAhead = toMatch;
-			System.out.println("lookahead: " + lookAhead);
-			String matched = new String();
 			
-			//temp next char string;
-			String nextChar;
-			
-			//keeps track of the regex code that currently matches the lookahead
-			int tempCode;
-			
-			//denotes the code for best regex match (for reserved word matches only)
-			int bestRegexMatch = 0;
-			
-			
-				//lookahead to see if we can match a reserved word, instead of returning IDs
+			//if we have more than 1 character left in the unlexed token, lookahead to see if we can match a reserved word
+			if(restOfToken.length()>1){
+				//lookahead buffer
+				String lookAhead = toMatch;
+				System.out.println("lookahead: " + lookAhead);
+				String matched = new String();
+				
+				//temp next char string;
+				String nextChar;
+						
+				//denotes the code for best regex match (for reserved word matches only)
+				int bestRegexMatch = 0;
+				
+				//will hold the regex object that matches a reserved word
+				RegexPatterns.RegX regexMatch = null;
+				
+				
+					//lookahead to see if we can match a reserved word, instead of returning IDs
 				for(int i =1; i< restOfToken.length(); i++){
 					System.out.println("index: " + i +"\nRestOfToken: " +restOfToken + "\nLengthToken: " + restOfToken.length());
-					
+						
 					//get the next character on the token
 					nextChar = String.valueOf(restOfToken.charAt(i));
 					System.out.println("Next Char: " + nextChar);
-					
+						
 					//if the next character is [a-z], then add this character onto the lookahead string
-					if(nextChar.matches(RegexPatterns.Regs.SINGLECHAR.getPattern())){
+					if(nextChar.matches(RegexPatterns.RegX.SINGLECHAR.getPattern())){
 						lookAhead+=nextChar;
-						
+							
 						System.out.println("lookahead: " + lookAhead);
-						
+							
 						//see if this string matches a reserved word
-						tempCode = longestMatchedReserved(lookAhead);
-						
-						System.out.println("tempCode: " + tempCode);
-						
+						regexMatch= longestMatchedReserved(lookAhead);
+							
 						//if the string matches a reserved word, get the code of that regex.
 						//we know that after every iteration of the for loop that the lookahead is longer than the previous attempted match.
 						//therefore, the longest match is stored in bestRegexMatch after each iteration.
-						if(tempCode > 0){
+						if(regexMatch != null){
 							matched = lookAhead;
 							System.out.println("matched: " + matched);
-							bestRegexMatch = tempCode;
+							bestRegexMatch = regexMatch.getCode();
 							System.out.println("bestRegexMatch: " + bestRegexMatch);
 						}
 					}
-					
+						
 					//if we get a non [a-z] character, stop looking ahead.
 					else{
 						break;
 					}
 				}
 			
-			//if we have a match for a reserved word, return that token instead of an ID
-			if(bestRegexMatch>0){
-				//set the regex match for this token
-				tempToken.setRegexCode(bestRegexMatch);
-				
-				//this token is of reserved type
-				tempToken.setType(Token.TokenType.RESERVED.getTokenCode());
-				
-				//set the value of this token
-				tempToken.setValue(matched);
+				//if we have a match for a reserved word, return that token instead of an ID
+				if(bestRegexMatch>0 && regexMatch != null){
+					//set the regex match for this token
+					tempToken.setRegexCode(bestRegexMatch);
+					
+					//this token is of reserved type
+					tempToken.setType(Token.TokenType.RESERVED.getTokenCode());
+					
+					//set the value of this token
+					tempToken.setValue(matched);
+					
+					tempToken.setRegexName(regexMatch.getName());
+				}
 			}
 			else{
 				//regex match is just a char
-				tempToken.setRegexCode(RegexPatterns.Regs.SINGLECHAR.getCode());
+				tempToken.setRegexCode(RegexPatterns.RegX.SINGLECHAR.getCode());
 				
 				//return an identifier
 				tempToken.setType(Token.TokenType.IDENTIFIER.getTokenCode());
 				
 				//only return the single char to denote an ID
 				tempToken.setValue(toMatch);
+				
+				tempToken.setRegexName("ID");
 			}
 		} 
 		catch(Exception ex){
@@ -240,47 +260,55 @@ public class Tokenizer {
 	
 	
 	//Takes in a String to be matched against the Regexes that match reserved words in the grammar
-	//Returns code of the Regex that matched the string
-	public int longestMatchedReserved(String toMatch){
+	//Returns Regex that matched the string
+	public RegexPatterns.RegX longestMatchedReserved(String toMatch){
 		
 		//Note: Reserved words have to be unique. Therefore, the match found here is the best one. 
-		for(RegexPatterns.Regs x: RegexPatterns.RESERVED){
+		for(RegexPatterns.RegX x: RegexPatterns.RESERVED){
 			if(toMatch.matches(x.getPattern())){
 				//return the code of the Regex Match
-				return x.getCode();
+				return x;
 			}
 		}
 		
-		//if we return 0, we know this token is an identifier and not a reserved word
-		return 0;
+		//if we return null, we know this token is an identifier and not a reserved word
+		return null;
 	}
+	
 	
 	public Token tokenSymbolMatcher(String toMatch, String restOfToken){
 		Token tempToken = new Token();
 		try{
 			
-			int regexCode = longestSymbolMatch(toMatch);
+			//get the specific regex object that matches this char
+			RegexPatterns.RegX regexMatch = longestSymbolMatch(toMatch);
 			
-			//if the rest of the token is empty or has just the character we're trying to match in it, return that symbol
+			//if the rest of the token is empty or has just the character we're trying to match in it, return that symbol. No need to lookahead
 			if(restOfToken.length() <=1){
 				tempToken.setValue(toMatch);
-				tempToken.setRegexCode(regexCode);
+				tempToken.setRegexCode(regexMatch.getCode());
 				tempToken.setType(Token.TokenType.SYMBOL.getTokenCode());
+				tempToken.setRegexName(regexMatch.getName());
+				
 			}
 			
 			//else if theres more characters, check to see if we get == or !=
 			else{
+				//string matched will a lookahead buffer
 				String matched;
+				//holds next char in input token sequence
 				String nextChar = String.valueOf(restOfToken.charAt(1));
+				
 				switch(toMatch){
 				
 				//check for boolean equals
 					case "=":{
-						if(nextChar.matches(RegexPatterns.Regs.ASSIGNMENT.getPattern())){
+						if(nextChar.matches(RegexPatterns.RegX.ASSIGNMENT.getPattern())){
 							matched = toMatch + nextChar;
 							tempToken.setValue(matched);
-							tempToken.setRegexCode(RegexPatterns.Regs.BOOLEANEQUALS.getCode());
+							tempToken.setRegexCode(RegexPatterns.RegX.BOOLEANEQUALS.getCode());
 							tempToken.setType(Token.TokenType.SYMBOL.getTokenCode());
+							tempToken.setRegexName(RegexPatterns.RegX.BOOLEANEQUALS.getName());
 						}
 						
 						break;
@@ -289,24 +317,24 @@ public class Tokenizer {
 					
 					//check for boolean not equals
 					case "!":{
-						if(nextChar.matches(RegexPatterns.Regs.ASSIGNMENT.getPattern())){
+						if(nextChar.matches(RegexPatterns.RegX.ASSIGNMENT.getPattern())){
 							matched = toMatch + nextChar;
 							tempToken.setValue(matched);
-							tempToken.setRegexCode(RegexPatterns.Regs.BOOLEANEQUALS.getCode());
+							tempToken.setRegexCode(RegexPatterns.RegX.BOOLEANNOTEQUALS.getCode());
 							tempToken.setType(Token.TokenType.SYMBOL.getTokenCode());
+							tempToken.setRegexName(RegexPatterns.RegX.BOOLEANNOTEQUALS.getName());
 						}
 						
 						break;
 					}
 					
-					//nextChar wasnt a symbol, so return the single symbol toMatch
+					//nextChar wasnt a symbol we're interested in, so return the single symbol toMatch
 					default:{
 						tempToken.setValue(toMatch);
-						tempToken.setRegexCode(regexCode);
+						tempToken.setRegexCode(regexMatch.getCode());
 						tempToken.setType(Token.TokenType.SYMBOL.getTokenCode());
+						tempToken.setRegexName(regexMatch.getName());
 					}
-						
-					
 				}
 			}
 		}
@@ -321,20 +349,63 @@ public class Tokenizer {
 	}
 	
 	
-	
-	
-	//TODO optimize this. Its pretty aweful at the moment	
 	//Returns a # greater than 0 if the given string matches a symbol
 	//returns 0 if the given string doesn't match a symbol
-	public int longestSymbolMatch(String toMatch){
-		for(RegexPatterns.Regs x : RegexPatterns.SYMBOLS){
+	public RegexPatterns.RegX longestSymbolMatch(String toMatch){
+		for(RegexPatterns.RegX x : RegexPatterns.SYMBOLS){
 			if(toMatch.matches(x.getPattern())){
-				return x.getCode();
+				return x;
 			}
 		}
-		return 0;
+		return null;
+	}
+	
+	
+	//Creates a double quote token and initializes string mode.
+	public Token beginStringMode(String toMatch){
+		//grab regex for double quote
+		RegexPatterns.RegX quoteRegex = RegexPatterns.RegX.DOUBLEQUOTE;
+		
+		//build the double quote token
+		Token tempToken = new Token();
+		tempToken.setValue(toMatch);
+		tempToken.setRegexCode(quoteRegex.getCode());
+		tempToken.setRegexName(quoteRegex.getName());
+		tempToken.setType(Token.TokenType.STRING.getTokenCode());
+		
+		//start string mode
+		this.isInsideString = true;
+		
+		return tempToken;
+	}
+	
+	public Token stringMode(String toMatch, String restOfToken){
+		Token tempToken = new Token();
+		RegexPatterns.RegX quoteReg = RegexPatterns.RegX.DOUBLEQUOTE;
+		
+		//if the next character is a double quote, kill string mode and return a double quote token.
+		if(toMatch.matches(quoteReg.getPattern())){
+			this.isInsideString = false;
+			tempToken.setValue(toMatch);
+			tempToken.setRegexName(quoteReg.getName());
+			tempToken.setType(Token.TokenType.STRING.getTokenCode());
+			tempToken.setRegexCode(quoteReg.getCode());
+			return tempToken;
+		}
+		else{
+			return tempToken;
+			
+			
+			
+			
+			
+			
+			
+		}
 	}
 		
+	
+	//Prints out tokens, debugging only
 	public void printTokens(){
 		for(Token x: tokenStream){
 			System.out.println(x.toString());

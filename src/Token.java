@@ -13,6 +13,8 @@ public class Token {
 	//Regex code (see RegexPatterns) that matches this token
 	public int regexCode;
 	
+	public String regexName;
+	
 
 	//list of possible token types
 	public enum TokenType{
@@ -44,10 +46,11 @@ public class Token {
 		this.value = value;
 	}
 	
-	public Token(String value, int regexCode, int type){
+	public Token(String value, int regexCode, int type, String regexName){
 		this.value = value;
 		this.regexCode = regexCode;
 		this.type = type;
+		this.regexName = regexName;
 	}
 	
 	
@@ -78,11 +81,20 @@ public class Token {
 		this.regexCode = regexCode;
 	}
 
+	public String getRegexName() {
+		return regexName;
+	}
+
+	public void setRegexName(String regexName) {
+		this.regexName = regexName;
+	}
+
 	@Override
 	public String toString() {
 		return "Token [value=" + value + ", type=" + type + ", regexCode="
-				+ regexCode + "]";
+				+ regexCode + ", regexName=" + regexName + "]";
 	}
+
 	
 	
 
