@@ -30,11 +30,8 @@ public class Compiler {
 				
 			
 			//iterate over source file
-			while(scanner.hasNext()){
-				String x = scanner.next();
-				System.out.println("passing token " + x + " onto lex");
-				lex.run(x);
-				System.out.println("finished lexing " + x);
+			while(scanner.hasNextLine()){
+				lex.run(scanner.nextLine());
 			}
 			
 			scanner.close();

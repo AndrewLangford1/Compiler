@@ -1,9 +1,4 @@
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.HashMap;
-
-
 
 
 public class Lexer {
@@ -38,9 +33,10 @@ public class Lexer {
 				//match a token 
 				Token lexedToken = tokenMatch(String.valueOf(unlexedToken.charAt(0)),unlexedToken.substring(0));
 				
-				System.out.println("Found: " + lexedToken.toString());
 								
-				if(!lexedToken.getValue().isEmpty()){
+				if(!(lexedToken == null)){
+					
+					System.out.println("Found: " + lexedToken.toString());
 					
 					//chop found tokens off the head of our unlexed token
 					
@@ -54,13 +50,13 @@ public class Lexer {
 						unlexedToken = unlexedToken.substring(1);
 					}
 					
-					//add the token to the token stream to be sent to lex.
+					//add the token to the token stream to be sent to parse.
 					tokenStream.add(lexedToken);
 					
 				}
+				
+				//we got some whitespace that we want to skip over, chop the whitespace off the unlexed token.
 				else{
-					
-					errorList.add(lexedToken);
 					unlexedToken = unlexedToken.substring(1);
 				}
 				
@@ -113,8 +109,11 @@ public class Lexer {
 					return token;
 				}
 				
-				
-				
+				//skip over whitespace
+				if(toMatch.matches(RegexPatterns.RegX.SPACECHAR.getPattern())){
+					//System.out.println("found whiteSpace");	
+					return null;
+				}
 			}
 			else{
 				//STRING MODE
@@ -358,6 +357,7 @@ public class Lexer {
 		
 		RegexPatterns.RegX quoteReg = RegexPatterns.RegX.DOUBLEQUOTE;
 		RegexPatterns.RegX singleChar = RegexPatterns.RegX.SINGLECHAR;
+		RegexPatterns.RegX escapeSequence = RegexPatterns.RegX.ESCAPESEQUENCE;
 		
 		
 		//if the next character is a double quote, kill string mode and return a double quote token.
@@ -367,6 +367,8 @@ public class Lexer {
 			return tempToken;
 		}
 		
+		
+		//if the next character isn't a double quote, check for valid strings (chars, or space characters)
 		else{
 		
 			//match a single character
@@ -374,6 +376,17 @@ public class Lexer {
 				tempToken = buildToken(toMatch, singleChar.getCode(), Token.TokenType.STRING.getTokenCode(),singleChar.getName());
 				return tempToken;
 			}
+			
+			
+			//match for whitespace characters.
+			//if(toMatch.matches(.getPattern())){
+				
+				
+				
+				
+			//}
+			
+			
 			
 		}
 		

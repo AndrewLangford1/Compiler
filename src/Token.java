@@ -91,7 +91,7 @@ public class Token {
 
 	@Override
 	public String toString() {
-		return "Token [value=" + value + " regexName=" + regexName+ "]";
+		return "Token <value=" + value + " regexName=" + regexName+ ">";
 	}
 
 	

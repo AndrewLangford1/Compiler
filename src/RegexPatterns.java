@@ -4,6 +4,8 @@ public class RegexPatterns{
 // for most current grammar definitions, see http://www.labouseur.com/courses/compilers/grammar.pdf
 		
 	
+	
+	//Collections of Regexes
 		public static RegX[] RESERVED = {RegX.PRINTSTMT, RegX.WHILESTMT, RegX.IFSTATEMENT, RegX.INTTYPE,
 									RegX.BOOLEANTYPE, RegX.STRINGTYPE, RegX.BOOLEANVALUE};
 		
@@ -13,7 +15,10 @@ public class RegexPatterns{
 		};
 		
 		public static RegX[] VALIDSTRINGS = {RegX.SINGLECHAR, RegX.NEWLINE, RegX.TAB, RegX.CARRIAGERETURN, RegX.SPACECHAR };
-	
+		
+		
+		
+
 		public enum RegX{
 			
 			
@@ -65,13 +70,14 @@ public class RegexPatterns{
 			/////////////WHITESPACE///////////////////
 			
 			//tabs or spaces
-			WHITESPACE("[ ]+(?=([^\"]*\"[^\"]*\")*[^\"]*$)", 16, "WHITESPACE"),
+			WHITESPACE("(\\t)|(\\r)|(\\n)|(\\s*)", 16, "WHITESPACE"),
 	
 			//newline characters like carriage return or newline
 			CARRIAGERETURN("\\r", 17, "CARRIAGEERETURN"),
 			NEWLINE("\\n", 18, "NEWLINE"),
 			TAB("\\t", 25, "TAB"),
 			SPACECHAR("[ ]", 26, "SPACECHAR"),
+			ESCAPESEQUENCE("[\\]", 27, "ESCAPESEQUENCE"),
 			
 	
 		
@@ -92,7 +98,7 @@ public class RegexPatterns{
 			//INTEGER OPERATORS
 			ADDITION("[+]", 23, "ADDITION"),
 			
-			SYMBOL("[$]|[{]|[}]|[(]|[)]|[=]|[\"]|[!]|[+]", 24, "SYMBOL");
+			SYMBOL("[$]|[{]|[}]|[(]|[)]|[=]|[!]|[+]", 24, "SYMBOL");
 			
 			
 		private String pattern;
