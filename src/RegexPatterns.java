@@ -11,6 +11,8 @@ public class RegexPatterns{
 											RegX.RIGHTPAREN, RegX.ENDOFPROGRAM, RegX.BOOLEANEQUALS, RegX.BOOLEANNOTEQUALS, RegX.ASSIGNMENT,
 											RegX.ADDITION
 		};
+		
+		public static RegX[] VALIDSTRINGS = {RegX.SINGLECHAR, RegX.NEWLINE, RegX.TAB, RegX.CARRIAGERETURN, RegX.SPACECHAR };
 	
 		public enum RegX{
 			
@@ -47,7 +49,7 @@ public class RegexPatterns{
 			
 			//Parentheses
 			//used in print statement, boolean expressions
-			LEFTPAREN("[(]", 10, "LEFTPARENT"),
+			LEFTPAREN("[(]", 10, "LEFTPAREN"),
 			RIGHTPAREN("[)]", 11, "RIGHTPAREN"),
 			
 			//TYPES
@@ -69,6 +71,7 @@ public class RegexPatterns{
 			CARRIAGERETURN("\\r", 17, "CARRIAGEERETURN"),
 			NEWLINE("\\n", 18, "NEWLINE"),
 			TAB("\\t", 25, "TAB"),
+			SPACECHAR("[ ]", 26, "SPACECHAR"),
 			
 	
 		

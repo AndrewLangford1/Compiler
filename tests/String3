@@ -1,1 +1,6 @@
-{print x if while string int abc 1 == 2 != 3}
+{
+
+print(x)
+
+
+};
