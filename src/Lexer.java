@@ -107,7 +107,6 @@ public class Lexer {
 				//SYMBOLS
 				//Matches Symbols
 				if(toMatch.matches(RegexPatterns.RegX.SYMBOL.getPattern())){
-					System.out.println("Attempting to match symbol " + toMatch);
 					token = tokenSymbolMatcher(toMatch, restOfToken);
 					return token;
 				}
@@ -263,8 +262,6 @@ public class Lexer {
 	
 	
 	public Token tokenSymbolMatcher(String toMatch, String restOfToken){
-
-		System.out.println("attempting to match symbol " + toMatch);
 		Token tempToken = new Token();
 		try{
 			
@@ -316,6 +313,12 @@ public class Lexer {
 							//build boolean not equals token
 							tempToken = buildToken(matched, RegexPatterns.RegX.BOOLEANNOTEQUALS.getCode(), 
 														Token.TokenType.SYMBOL.getTokenCode(),RegexPatterns.RegX.BOOLEANNOTEQUALS.getName());
+						}
+						//anything else after a ! sign is an error
+						else{
+							
+							
+							
 						}
 						
 						break;
@@ -402,21 +405,10 @@ public class Lexer {
 				}
 				
 				
-				//match for single whitespace characters.
-				if(toMatch.matches(spaceChar.getPattern())){
+				//match for whitespace characters.
+				if(toMatch.matches(spaceChar.getPattern()) | toMatch.matches(escapedWhiteSpace.getPattern())){
 					tempToken = buildToken(toMatch, spaceChar.getCode(), Token.TokenType.WHITESPACE.getTokenCode(), spaceChar.getName());
 					return tempToken;
-				}
-				
-				
-				System.out.println("attempting to match escaped characters");
-				//check for escaped whitespace characters. only possible with a match for escape sequence and a t,n,or r character afterwards.
-				if(restOfToken.length()>1 && toMatch.matches("\\\\")){
-					String lookahead = toMatch + String.valueOf(restOfToken.charAt(1));
-					if(lookahead.matches(escapedWhiteSpace.getPattern())){
-						tempToken = buildToken(lookahead,escapedWhiteSpace.getCode(), Token.TokenType.WHITESPACE.getTokenCode(), escapedWhiteSpace.getName());
-						return tempToken;
-					}
 				}
 			}
 		} 
@@ -432,7 +424,7 @@ public class Lexer {
 	}
 	
 	public String buildStringError(String invalidToken, int lineNum){
-		String errorMessage = "Invalid token found inside String on " + lineNum + ".";
+		String errorMessage = "Invalid token found inside Charlist on " + lineNum + ".";
 		errorMessage +=  "Found: " + "'" +invalidToken + "' , expecting char or space";
 		return errorMessage;
 	}
