@@ -27,11 +27,13 @@ public class Compiler {
 			
 
 			Lexer lex= new Lexer();
-				
+			
+			int lineCount = 0;
 			
 			//iterate over source file
 			while(scanner.hasNextLine()){
-				lex.run(scanner.nextLine());
+				lineCount ++;
+				lex.run(scanner.nextLine(), lineCount);
 			}
 			
 			scanner.close();

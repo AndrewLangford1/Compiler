@@ -15,6 +15,7 @@ public class Token {
 	
 	public String regexName;
 	
+	public int lineNum;
 
 	//list of possible token types
 	public enum TokenType{
@@ -23,7 +24,8 @@ public class Token {
 		DIGIT(3), 
 		RESERVED(4),
 		SYMBOL(5),
-		ERROR(6);
+		ERROR(6),
+		WHITESPACE(7);
 		
 		private final int tokenCode;
 		
@@ -88,10 +90,19 @@ public class Token {
 	public void setRegexName(String regexName) {
 		this.regexName = regexName;
 	}
+	
+	public int getLineNum() {
+		return lineNum;
+	}
+
+	public void setLineNum(int lineNum) {
+		this.lineNum = lineNum;
+	}
+	
 
 	@Override
 	public String toString() {
-		return "Token <value=" + value + " regexName=" + regexName+ ">";
+		return "Token <" + value + " , " + regexName+ ">";
 	}
 
 	

@@ -1,5 +1,1 @@
-{
-	string s
-    s = "h \s\n\s i"
-    print(s)
-} $
+i = " this is probably a strings \n \t 		"

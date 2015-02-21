@@ -70,7 +70,7 @@ public class RegexPatterns{
 			/////////////WHITESPACE///////////////////
 			
 			//tabs or spaces
-			WHITESPACE("(\\t)|(\\r)|(\\n)|(\\s*)", 16, "WHITESPACE"),
+			ESCAPEDWHITESPACE("(\\t)|(\\r)|(\\n)", 16, "ESCAPEDWHITESPACE"),
 	
 			//newline characters like carriage return or newline
 			CARRIAGERETURN("\\r", 17, "CARRIAGEERETURN"),

@@ -7,7 +7,7 @@ public class Lexer {
 	
 	private boolean isInsideString;
 	private ArrayList<Token> tokenStream;
-	private ArrayList<Token> errorList;
+	private ArrayList<String> errorList;
 	
 	
 
@@ -16,13 +16,13 @@ public class Lexer {
 	public Lexer(){
 		this.isInsideString = false;
 		tokenStream = new ArrayList<Token>();
-		errorList = new ArrayList<Token>();
+		errorList = new ArrayList<String>();
 		 
 	}
 	
 	
 	//Main function for Lex
-	public void run(String unlexedToken){
+	public void run(String unlexedToken, int lineNum){
 		try{
 			//Try and Match all of the tokens char by char that are coming in from Lex
 			//keep matching tokens until empty
@@ -31,7 +31,7 @@ public class Lexer {
 				System.out.println("Lexing: " + "'" + unlexedToken + "'");
 				
 				//match a token 
-				Token lexedToken = tokenMatch(String.valueOf(unlexedToken.charAt(0)),unlexedToken.substring(0));
+				Token lexedToken = tokenMatch(String.valueOf(unlexedToken.charAt(0)),unlexedToken.substring(0), lineNum);
 				
 								
 				if(!(lexedToken == null)){
@@ -51,6 +51,7 @@ public class Lexer {
 					}
 					
 					//add the token to the token stream to be sent to parse.
+					lexedToken.setLineNum(lineNum);
 					tokenStream.add(lexedToken);
 					
 				}
@@ -71,7 +72,7 @@ public class Lexer {
 	//restOfToken = rest of string trying to lex, to be used for character lookahead
 	//currentIndex = current position of toMatch in respect to whole token length
 	//tokenLength = entire token length
-	public Token tokenMatch(String toMatch, String restOfToken){
+	public Token tokenMatch(String toMatch, String restOfToken, int lineNum){
 		//new token to be added to the token stream
 		Token token = new Token();
 		try{
@@ -88,10 +89,11 @@ public class Lexer {
 				}
 				
 				//STRINGS
+				//will enter string mode if this pattern is matched
 				if(toMatch.matches(RegexPatterns.RegX.DOUBLEQUOTE.getPattern())){
 					//enter string mode, create double quote token
-					//token = beginStringMode(toMatch);
-					//return token;
+					token = beginStringMode(toMatch);
+					return token;
 				}
 				
 				//DIGITS
@@ -105,22 +107,26 @@ public class Lexer {
 				//SYMBOLS
 				//Matches Symbols
 				if(toMatch.matches(RegexPatterns.RegX.SYMBOL.getPattern())){
+					System.out.println("Attempting to match symbol " + toMatch);
 					token = tokenSymbolMatcher(toMatch, restOfToken);
 					return token;
 				}
 				
 				//skip over whitespace
-				if(toMatch.matches(RegexPatterns.RegX.SPACECHAR.getPattern())){
+				if(toMatch.matches(RegexPatterns.RegX.SPACECHAR.getPattern()) | toMatch.matches(RegexPatterns.RegX.ESCAPEDWHITESPACE.getPattern())){
 					//System.out.println("found whiteSpace");	
 					return null;
 				}
 			}
-			else{
-				//STRING MODE
+	
+			if(isInsideString){
+					token = stringMode(toMatch, restOfToken);
+					if(token == null){
+						String invalidString = this.buildStringError(toMatch, lineNum);
+						errorList.add(invalidString);
+					}
 				
-				
-				
-				
+					return token;
 			}
 		}
 		catch(Exception ex){
@@ -257,11 +263,15 @@ public class Lexer {
 	
 	
 	public Token tokenSymbolMatcher(String toMatch, String restOfToken){
+
+		System.out.println("attempting to match symbol " + toMatch);
 		Token tempToken = new Token();
 		try{
 			
 			//get the specific regex object that matches this char
 			RegexPatterns.RegX regexMatch = longestSymbolMatch(toMatch);
+			
+			System.out.println(regexMatch.getName());
 			
 			//if the rest of the token is empty or has just the character we're trying to match in it, return that symbol. No need to lookahead
 			if(restOfToken.length() <=1){
@@ -287,6 +297,11 @@ public class Lexer {
 							//build boolean equals token
 							tempToken = buildToken(matched, RegexPatterns.RegX.BOOLEANEQUALS.getCode(), 
 									Token.TokenType.SYMBOL.getTokenCode(),RegexPatterns.RegX.BOOLEANEQUALS.getName());
+						}
+						
+						//if its not boolean equals, just return assignment
+						else{
+							tempToken = buildToken(toMatch, regexMatch.getCode(), Token.TokenType.SYMBOL.getTokenCode(),regexMatch.getName());
 						}
 						
 						break;
@@ -332,6 +347,8 @@ public class Lexer {
 				return x;
 			}
 		}
+		
+		//if we get here, we didnt match a symbol.
 		return null;
 	}
 	
@@ -355,54 +372,73 @@ public class Lexer {
 	public Token stringMode(String toMatch, String restOfToken){
 		Token tempToken = new Token();
 		
-		RegexPatterns.RegX quoteReg = RegexPatterns.RegX.DOUBLEQUOTE;
-		RegexPatterns.RegX singleChar = RegexPatterns.RegX.SINGLECHAR;
-		RegexPatterns.RegX escapeSequence = RegexPatterns.RegX.ESCAPESEQUENCE;
-		
-		
-		//if the next character is a double quote, kill string mode and return a double quote token.
-		if(toMatch.matches(quoteReg.getPattern())){
-			this.isInsideString = false;
-			tempToken = buildToken(toMatch, quoteReg.getCode(), Token.TokenType.STRING.getTokenCode(),quoteReg.getName());
-			return tempToken;
-		}
-		
-		
-		//if the next character isn't a double quote, check for valid strings (chars, or space characters)
-		else{
-		
-			//match a single character
-			if(toMatch.matches(singleChar.getPattern())){
-				tempToken = buildToken(toMatch, singleChar.getCode(), Token.TokenType.STRING.getTokenCode(),singleChar.getName());
+		try{
+			
+			
+			//Only attempting to match quotes, single chars, or any version of whitespace. Anything else is a lex error
+			
+			//These are the regexes we are interested in matching.
+			RegexPatterns.RegX quoteReg = RegexPatterns.RegX.DOUBLEQUOTE;
+			RegexPatterns.RegX singleChar = RegexPatterns.RegX.SINGLECHAR;
+			RegexPatterns.RegX spaceChar = RegexPatterns.RegX.SPACECHAR;
+			RegexPatterns.RegX escapedWhiteSpace = RegexPatterns.RegX.ESCAPEDWHITESPACE;
+			
+			
+			//if the next character is a double quote, kill string mode and return a double quote token.
+			if(toMatch.matches(quoteReg.getPattern())){
+				this.isInsideString = false;
+				tempToken = buildToken(toMatch, quoteReg.getCode(), Token.TokenType.STRING.getTokenCode(),quoteReg.getName());
 				return tempToken;
 			}
 			
 			
-			//match for whitespace characters.
-			//if(toMatch.matches(.getPattern())){
-				
-				
-				
-				
-			//}
+			//if the next character isn't a double quote, check for valid strings (chars, or space characters)
+			else{
 			
+				//match a single character
+				if(toMatch.matches(singleChar.getPattern())){
+					tempToken = buildToken(toMatch, singleChar.getCode(), Token.TokenType.STRING.getTokenCode(),singleChar.getName());
+					return tempToken;
+				}
+				
+				
+				//match for single whitespace characters.
+				if(toMatch.matches(spaceChar.getPattern())){
+					tempToken = buildToken(toMatch, spaceChar.getCode(), Token.TokenType.WHITESPACE.getTokenCode(), spaceChar.getName());
+					return tempToken;
+				}
+				
+				
+				System.out.println("attempting to match escaped characters");
+				//check for escaped whitespace characters. only possible with a match for escape sequence and a t,n,or r character afterwards.
+				if(restOfToken.length()>1 && toMatch.matches("\\\\")){
+					String lookahead = toMatch + String.valueOf(restOfToken.charAt(1));
+					if(lookahead.matches(escapedWhiteSpace.getPattern())){
+						tempToken = buildToken(lookahead,escapedWhiteSpace.getCode(), Token.TokenType.WHITESPACE.getTokenCode(), escapedWhiteSpace.getName());
+						return tempToken;
+					}
+				}
+			}
+		} 
+		catch(Exception ex){
+			System.out.println("Error in String Mode");
+			System.out.println(ex);
 			
 			
 		}
 		
+		//if we get here, there was no valid string match.
 		return null;
 	}
 	
-	
-	//Returns the regex object of a whitespace character that matches the given string
-	public RegexPatterns.RegX matchWhiteSpace(String toMatch){
-		for(RegexPatterns.RegX x: RegexPatterns.VALIDSTRINGS){
-			if(toMatch.matches(x.getPattern())){
-				return x;
-			}
-		}
-		return null;
+	public String buildStringError(String invalidToken, int lineNum){
+		String errorMessage = "Invalid token found inside String on " + lineNum + ".";
+		errorMessage +=  "Found: " + "'" +invalidToken + "' , expecting char or space";
+		return errorMessage;
 	}
+	
+	
+	
 	
 	
 	//constructs a new token a returns it. Calls Token constructor
