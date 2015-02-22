@@ -102,7 +102,7 @@ public class Token {
 
 	@Override
 	public String toString() {
-		return "Token <" + value + " , " + regexName+ ">";
+		return "<" + value + " , " + regexName+ ">";
 	}
 
 	

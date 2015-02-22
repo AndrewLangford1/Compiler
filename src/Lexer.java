@@ -1,12 +1,22 @@
 import java.util.ArrayList;
 
+/*
+ * Lexer Class
+ * Class to break a source file down into a token stream to be passed on to the parser.
+ * Handles token building, and lexical errors.
+ */
 
 public class Lexer {
 	
 	
 	
+	//determines if we are in string mode or not
 	private boolean isInsideString;
+	
+	//tokens to be passed on to parse
 	private ArrayList<Token> tokenStream;
+	
+	// messages that contain lexical errors. Will attempt to be as descriptive as possible.
 	private ArrayList<String> errorList;
 	
 	
@@ -22,21 +32,17 @@ public class Lexer {
 	
 	
 	//Main function for Lex
-	public void run(String unlexedToken, int lineNum){
+	public void lex(String unlexedToken, int lineNum){
 		try{
 			//Try and Match all of the tokens char by char that are coming in from Lex
 			//keep matching tokens until empty
 			while(!unlexedToken.isEmpty()){
-				
-				System.out.println("Lexing: " + "'" + unlexedToken + "'");
 				
 				//match a token 
 				Token lexedToken = tokenMatch(String.valueOf(unlexedToken.charAt(0)),unlexedToken.substring(0), lineNum);
 				
 								
 				if(!(lexedToken == null)){
-					
-					System.out.println("Found: " + lexedToken.toString());
 					
 					//chop found tokens off the head of our unlexed token
 					
@@ -107,7 +113,7 @@ public class Lexer {
 				//SYMBOLS
 				//Matches Symbols
 				if(toMatch.matches(RegexPatterns.RegX.SYMBOL.getPattern())){
-					token = tokenSymbolMatcher(toMatch, restOfToken);
+					token = tokenSymbolMatcher(toMatch, restOfToken, lineNum);
 					return token;
 				}
 				
@@ -117,15 +123,20 @@ public class Lexer {
 					return null;
 				}
 			}
-	
+			
+			
+			//String Mode
 			if(isInsideString){
-					token = stringMode(toMatch, restOfToken);
-					if(token == null){
-						String invalidString = this.buildStringError(toMatch, lineNum);
-						errorList.add(invalidString);
-					}
+				token = stringMode(toMatch, restOfToken);
+					
+			//Have to handle string errors differently than normal lexical errors
+			//only chars or spacechars are allowed. 
+				if(token == null){
+					buildStringError(toMatch, lineNum);
+					return null;
+				}
 				
-					return token;
+				return token;
 			}
 		}
 		catch(Exception ex){
@@ -134,8 +145,12 @@ public class Lexer {
 		}
 		
 		
-		//if we get here, we know there's a lex error
-		return token;
+		//if we get here, we know there's a lex error.
+		buildInvalidTokenError(toMatch, lineNum);
+		
+		
+		//dont return a token, because we got an error
+		return null;
 	}
 
 	
@@ -261,14 +276,12 @@ public class Lexer {
 	}
 	
 	
-	public Token tokenSymbolMatcher(String toMatch, String restOfToken){
+	public Token tokenSymbolMatcher(String toMatch, String restOfToken, int lineNum){
 		Token tempToken = new Token();
 		try{
 			
 			//get the specific regex object that matches this char
 			RegexPatterns.RegX regexMatch = longestSymbolMatch(toMatch);
-			
-			System.out.println(regexMatch.getName());
 			
 			//if the rest of the token is empty or has just the character we're trying to match in it, return that symbol. No need to lookahead
 			if(restOfToken.length() <=1){
@@ -316,9 +329,7 @@ public class Lexer {
 						}
 						//anything else after a ! sign is an error
 						else{
-							
-							
-							
+							this.buildInvalidTokenError(toMatch, lineNum);	
 						}
 						
 						break;
@@ -371,7 +382,10 @@ public class Lexer {
 	}
 	
 	
-	//TODO finish this method
+	//Builds tokens for valid string characters
+	//Chars, charlists, and spacechars allowed only.
+	//returns a token object if a valid token is found
+	//returns null if no valid token can be found
 	public Token stringMode(String toMatch, String restOfToken){
 		Token tempToken = new Token();
 		
@@ -415,25 +429,32 @@ public class Lexer {
 		catch(Exception ex){
 			System.out.println("Error in String Mode");
 			System.out.println(ex);
-			
-			
 		}
 		
 		//if we get here, there was no valid string match.
 		return null;
 	}
 	
-	public String buildStringError(String invalidToken, int lineNum){
-		String errorMessage = "Invalid token found inside Charlist on " + lineNum + ".";
+	
+	//builds a simple error message to be added to the error list
+	public void buildInvalidTokenError(String toMatch, int lineNum){
+		String errorMessage = "ERROR: [Line " + lineNum + "] ";
+		errorMessage += "Invalid token: " + "'"+  toMatch + "'";
+		errorList.add(errorMessage);
+	}
+	
+	//builds a simple string error message to be added to the error list
+	public void buildStringError(String invalidToken, int lineNum){
+		String errorMessage = "ERROR: [Line " + lineNum + "] Invalid token found inside String. \n";
 		errorMessage +=  "Found: " + "'" +invalidToken + "' , expecting char or space";
-		return errorMessage;
+		errorList.add(errorMessage);
 	}
 	
 	
 	
 	
 	
-	//constructs a new token a returns it. Calls Token constructor
+	//constructs a new token and returns it. Calls Token constructor
 	public Token buildToken(String value, int regexCode, int type, String regexName){
 		Token ret = new Token(value, regexCode, type, regexName);
 		return ret;
@@ -442,8 +463,31 @@ public class Lexer {
 	
 	//Prints out tokens, debugging only
 	public void printTokens(){
+		System.out.println("TokenStream: ");
 		for(Token x: tokenStream){
 			System.out.println(x.toString());
 		}
 	}
+	
+	public void printErrors(){
+		System.out.println(this.errorList.size() + " error(s):");
+		//print errors
+		for(String error : errorList){
+			System.out.println(error);
+		}
+	}
+	
+/////auto generated////
+	public ArrayList<Token> getTokenStream() {
+		return tokenStream;
+	}
+
+
+
+
+
+	public ArrayList<String> getErrorList() {
+		return errorList;
+	}
+	
 }
