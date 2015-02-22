@@ -455,8 +455,8 @@ public class Lexer {
 	
 	
 	//constructs a new token and returns it. Calls Token constructor
-	public Token buildToken(String value, int regexCode, int type, String regexName){
-		Token ret = new Token(value, regexCode, type, regexName);
+	public Token buildToken(String value, int regexCode, int type, String indicator){
+		Token ret = new Token(value, regexCode, type, indicator);
 		return ret;
 	}
 		

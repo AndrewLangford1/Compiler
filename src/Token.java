@@ -13,7 +13,7 @@ public class Token {
 	//Regex code (see RegexPatterns) that matches this token
 	public int regexCode;
 	
-	public String regexName;
+	public String indicator;
 	
 	public int lineNum;
 
@@ -48,11 +48,11 @@ public class Token {
 		this.value = value;
 	}
 	
-	public Token(String value, int regexCode, int type, String regexName){
+	public Token(String value, int regexCode, int type, String indicator){
 		this.value = value;
 		this.regexCode = regexCode;
 		this.type = type;
-		this.regexName = regexName;
+		this.indicator = indicator;
 	}
 	
 	
@@ -83,12 +83,12 @@ public class Token {
 		this.regexCode = regexCode;
 	}
 
-	public String getRegexName() {
-		return regexName;
+	public String getIndicator() {
+		return indicator;
 	}
 
-	public void setRegexName(String regexName) {
-		this.regexName = regexName;
+	public void setIndicator(String indicator) {
+		this.indicator = indicator;
 	}
 	
 	public int getLineNum() {
@@ -102,7 +102,7 @@ public class Token {
 
 	@Override
 	public String toString() {
-		return "<" + value + " , " + regexName+ ">";
+		return "<" + value + " , " + indicator+ ">";
 	}
 
 	
