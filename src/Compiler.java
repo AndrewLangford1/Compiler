@@ -24,6 +24,8 @@ public class Compiler {
 			
 			//move on to parse if there weren't any errors
 			if(!(tokenStream == null)){
+			
+				
 				
 			}
 			//kill compilation if there were errors in lex
@@ -100,6 +102,7 @@ public class Compiler {
 	}
 	
 	private static void parseInput(){
+		System.out.println("Parsing..... ");
 		
 		
 		
