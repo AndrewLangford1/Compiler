@@ -92,10 +92,109 @@ public class Parser {
 	}
 	
 	private void parseVariableDeclaration(){
-		match()
+		match("int|string|boolean");
+		match("[a-z]");
+	}
+	
+	private void parseWhileStatement(){
+		match("while");
+		parseBooleanExpression();
+		parseBlock();
+	}
+	
+	private void parseIfStatement(){
+		match("if");
+		parseBooleanExpression();
+		parseBlock();
+	}
+	
+	private void parseExpression(){
+		String nextToken = nextToken().getIndicator();
+		switch(nextToken){
+			case("DIGIT"):{
+				parseIntExpression();
+			
+			}
+			
+			case("DOUBLEQUOTE"):{
+				parseStringExpression();
+				
+			}
+			
+			case("LEFTPAREN"):{
+				parseBooleanExpression();
+				
+			}
+			
+			case("ID"):{
+				parseId();
+			}
+			
+			default:{
+				//TODO raise error
+			}
+		}
+	}
+	
+	private void parseIntExpression(){
+		match("[0-9]");
+		if(nextToken().getValue().matches("+")){
+			parseIntegerOperation();
+			parseExpression();
+		}
+		else{
+			return;
+		}
+	}
+	
+	private void parseStringExpression(){
+		match("\"");
+		parseCharlist();
+		match("\"");
+	}
+	
+	private void parseBooleanExpression(){
+		String nextToken = nextToken().getValue();
+		if(nextToken.matches("false|true")){
+			match("false|true");
+		}
+		else{
 		
+			match("(");
+			parseExpression();
+			parseBooleanOperation();
+			parseExpression();
+			match(")");
+		}
+	}
+	
+	private void parseId(){
+		match("[a-z]");
+	}
+	
+	private void parseCharlist(){
+		String nextToken = nextToken().getValue();
+		if(nextToken.matches("[a-z]") | nextToken.matches("[ ]")){
+			parseCharlist();
+		}
+		else{
+			//epcelon production
+			
+		}
+	}
+	
+	private void parseBooleanOperation(){
+		match("==|!=");
+	}
+	
+	private void parseIntegerOperation(){
+		match("+");
 		
 	}
+	
+	
+	
+	
 	
 	private void match(String toMatch){
 		//if we have another token andmatch correctly, consume the token.

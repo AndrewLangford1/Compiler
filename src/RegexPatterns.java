@@ -75,30 +75,36 @@ public class RegexPatterns{
 			//newline characters like carriage return or newline
 			CARRIAGERETURN("\\r", 17, "CARRIAGEERETURN"),
 			NEWLINE("\\n", 18, "NEWLINE"),
-			TAB("\\t", 25, "TAB"),
-			SPACECHAR("[ ]", 26, "SPACECHAR"),
-			ESCAPESEQUENCE("[\\]", 27, "ESCAPESEQUENCE"),
+			TAB("\\t", 19, "TAB"),
+			SPACECHAR("[ ]", 20, "SPACECHAR"),
+			ESCAPESEQUENCE("[\\]", 21, "ESCAPESEQUENCE"),
 			
 	
 		
 			
 			//DIGIT
-			DIGIT("[0-9]{1}", 19, "DIGIT"),
+			DIGIT("[0-9]{1}", 22, "DIGIT"),
 			
 	
 			//BOOLEAN OPERATORS
-			BOOLEANEQUALS("==", 20, "BOOLEANEQUALS"),
-			BOOLEANNOTEQUALS("!=", 21, "BOOLEANNOTEQUALS"),
+			BOOLEANEQUALS("==", 23, "BOOLEANEQUALS"),
+			BOOLEANNOTEQUALS("!=", 24, "BOOLEANNOTEQUALS"),
 			
 			//BOOLEAN VALUES
-			BOOLEANVALUE("true|false", 22, "BOOLEANVALUE"),
+			BOOLEANVALUE("true|false", 25, "BOOLEANVALUE"),
 				
 		
 	
 			//INTEGER OPERATORS
-			ADDITION("[+]", 23, "ADDITION"),
+			ADDITION("[+]", 26, "ADDITION"),
 			
-			SYMBOL("[$]|[{]|[}]|[(]|[)]|[=]|[!]|[+]", 24, "SYMBOL");
+			SYMBOL("[$]|[{]|[}]|[(]|[)]|[=]|[!]|[+]", 27, "SYMBOL"),
+			
+			
+			
+			//Misc used in parser
+			TYPEMATCH("int|boolean|string", 28, "TYPE");
+			
 			
 			
 		private String pattern;
