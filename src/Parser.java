@@ -3,13 +3,10 @@ import java.util.ArrayList;
 
 public class Parser {
 	private ArrayList<Token> tokenStream;
-	private ArrayList<String> errorMessages;
-	private ArrayList<String> warningMessages;
+
 	
 	public Parser(ArrayList<Token> tokenStream){
 		this.tokenStream = tokenStream;
-		this.errorMessages = new ArrayList<String>();
-		this.warningMessages = new ArrayList<String>();
 	}
 	
 	
