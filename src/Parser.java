@@ -220,6 +220,7 @@ public class Parser {
 					default:{
 						
 						
+						
 					}
 				}
 				System.out.println("Ending Statement");
@@ -396,7 +397,7 @@ public class Parser {
 						break;
 						
 						default:{
-							invalidExpression();
+							invalidExpression(nextToken());
 					
 						}
 					}
@@ -476,6 +477,7 @@ public class Parser {
 				//grab next token
 				String nextToken = nextToken().getValue();
 				
+				System.out.println("matching" + nextToken);
 				//match boolean values
 				
 				if(nextToken.matches("false|true")){
@@ -491,7 +493,7 @@ public class Parser {
 					System.out.println("Expecting <)>");
 					match("\\)");
 				}
-			}
+			}	
 			else{
 				//ran out of tokens prematurely. kill parse.
 				prematureEndOfFile();
@@ -674,13 +676,14 @@ public class Parser {
 	
 	//ran out of tokens prematurely. kill parsing
 	private void prematureEndOfFile(){
-		System.out.println("ERROR: Premature end of File");
+		System.out.println("ERROR: Premature end of File. Missing End Curly Brace");
 		System.out.println("Parse Fail....");
 		System.exit(1);
 	}
 	
-	private void invalidExpression(){
+	private void invalidExpression(Token token){
 		System.out.println("ERROR: Invalid Expression");
+		System.out.println("[Line: " + token.getLineNum() + "]" + "Unexpected token <" + token.getValue() + ">");
 		System.out.println("Parse Fail....");
 		System.exit(1);
 		
