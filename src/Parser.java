@@ -135,7 +135,6 @@ public class Parser {
 					 }
 					 
 					 
-					 System.out.println("Ending Statement List");
 					 parseStatementList();
 				}
 				else{
@@ -400,6 +399,7 @@ public class Parser {
 						break;
 						
 						default:{
+							invalidExpression();
 					
 						}
 					}
@@ -680,5 +680,12 @@ public class Parser {
 		System.out.println("ERROR: Premature end of File");
 		System.out.println("Parse Fail....");
 		System.exit(1);
+	}
+	
+	private void invalidExpression(){
+		System.out.println("ERROR: Invalid Expression");
+		System.out.println("Parse Fail....");
+		System.exit(1);
+		
 	}
 }
