@@ -13,8 +13,11 @@ How to Run
 -in order to run this compiler:
 -------------------------------
  -cd to the src folder: ...\Compiler\src
+ 
  -then run the following:
+ 
  -javac Compiler.java
+ 
  -java Compiler path\to\source\test\file
  
 -all output will be printed to the command prompt
