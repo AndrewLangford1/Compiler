@@ -12,11 +12,11 @@ public class Parser {
 		this.warningMessages = new ArrayList<String>();
 	}
 	
+	
+	//main parser function
 	public void parse(){
 		try{
-		System.out.println("Parsing Source File ");
 		parseProgram();
-		System.out.println("Parsing Complete");
 		} catch(Exception ex){
 			System.out.println(ex);
 			System.out.println("error in main parse function");
@@ -26,10 +26,12 @@ public class Parser {
 	
 	private void parseProgram(){
 		try {
-			System.out.println("Parsing Program");
 			parseBlock();
-			match("$");	
-			System.out.println("Parsing Program Complete");
+			
+			//match EOF
+			System.out.println("Expecting <$>");
+			match("[$]");
+			System.out.println("Parse Success!");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -40,11 +42,18 @@ public class Parser {
 	
 	private void parseBlock(){
 		try {
-			System.out.println("Parsing Block");
+			
+			
+		System.out.println("Parsing Block..");
+		//match opening brace
+			System.out.println("Expecting <{>");
 			match("\\{");
+			
+		//begin parsing statements, if any
 			parseStatementList();
+		//match closing brace
+			System.out.println("Expecting <}>");
 			match("\\}");
-			System.out.println("Parsing Block Complete ");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -52,71 +61,158 @@ public class Parser {
 		}
 	}
 	
+	
+	//This function runs checks against the following sets for Statement list. If a starting set of Statement is found, it parses a statement.
+	//If none are found, its probably the end of a block. Or an error.
 	private void parseStatementList(){
-		try {
-			System.out.println("Parsing Statement List");
-			parseStatement();
-			parseStatementList();	
-			System.out.println("Parsing Statement List Complete ");
-		} catch (Exception e) {
+			try {
+				
+				//grab the next tokens type
+			 String nextToken = nextToken().getIndicator();
 			 
-			System.out.println(e);
-			System.out.println("error parsing statement list");
-		}
+			 //basically just passes control onto parse statement if any elements of Statements starting set are found
+			 switch(nextToken){
+				 case("PRINTSTATEMENT"):{
+					 parseStatement();
+	
+				 }
+				 break;
+	
+				 case("ID"):{
+					 parseStatement();
+				 }
+				 break;
+	
+				 case("INTTYPE"):{
+					 parseStatement();
+	
+				 }
+				 break;
+	
+				 case("STRINGTYPE"):{
+					 parseStatement();
+	
+				 }
+				 break;
+	
+				 case("BOOLEANTYPE"):{
+					 parseStatement();
+	
+				 }
+				 
+				 break;
+	
+				 case("WHILELOOP"):{
+					 parseStatement();
+	
+				 }
+				 
+				 break;
+	
+				 case("IFSTATEMENT"):{
+					 parseStatement();
+	
+				 }
+				 
+				 break;
+	
+				 case("BLOCKLEFTCURLY"):{
+					 parseStatement();
+				 }
+				 
+				 break;
+	
+				 //if nothing is found, return to parse block
+				 default:{
+					return;
+				 }
+			 }
+			 
+			 
+			 
+			 parseStatementList();
+			 
+
+		 } catch (Exception e) {
+			 System.out.println(e);
+		 }
 	}
 	
+
 	
+	
+	
+	//Parses single statement, pretty self explanatory
 	private void parseStatement(){
+		System.out.println("Parsing Statement..");
 		try {
-			System.out.println("Parsing STMT ");
 			String nextToken = nextToken().getIndicator();
-			System.out.println("attempting to parse statement with token" + nextToken);
 			switch(nextToken){
 				case("PRINTSTATEMENT"):{
+					System.out.println("Parsing Print Statement..");
 					parsePrintStatement();
-
 				}
 				
+				break;
+				
 				case("ID"):{
+					System.out.println("Parsing Assignment Statement..");
 					parseAssignmentStatement();
 				}
 				
+				break;
+				
 				case("INTTYPE"):{
+					System.out.println("Parsing VarDecl..");
 					parseVariableDeclaration();
 					
 				}
+				
+				break;
 				
 				case("STRINGTYPE"):{
+					System.out.println("Parsing VarDecl..");
 					parseVariableDeclaration();
 					
 				}
+				
+				break;
 				
 				case("BOOLEANTYPE"):{
+					System.out.println("Parsing VarDecl..");
 					parseVariableDeclaration();
 					
 				}
 				
+				break;
+				
 				case("WHILELOOP"):{
+					System.out.println("Parsing While Statement..");
 					parseWhileStatement();
 					
 				}
 				
+				break;
+				
 				case("IFSTATEMENT"):{
+					System.out.println("Parsing If Statement..");
 					parseIfStatement();
-					
-					
 				}
+				
+				break;
 				
 				case("BLOCKLEFTCURLY"):{
 					parseBlock();
 				}
 				
+				break;
+				
 				default:{
-					System.out.println("ERROR PARSING STATEMENT");
+					
+					
 				}
 			}
 			
-			System.out.println("Parsing STMT complete ");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -124,14 +220,24 @@ public class Parser {
 		}
 	}
 	
+	
+//Parses print statements ie print(Expr)
 	private void parsePrintStatement(){
 		try {
-			System.out.println("Parsing print statement ");
+			
+			System.out.println("Expecting <print>");
 			match("print");
-			match("(");
+			
+			System.out.println("Expecting <(> ");
+			//match left paren
+			match("\\(");
+			
+			//parse expression inside print statement
 			parseExpression();
-			match(")");
-			System.out.println("Parsing print statement complete ");
+			
+			System.out.println("Expecting <)>");
+			//match right paren
+			match("\\)");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -139,13 +245,19 @@ public class Parser {
 		}
 	}
 	
+//Parse Assignments
 	private void parseAssignmentStatement(){
 		try {
-			System.out.println("Parsing assignment statement");
-			match("[a-z]");
+			
+			//match
+			parseId();
+			
+			System.out.println("Expecting <=>");
+			//match assignment character
 			match("=");
+			
+			//parse the expression this id is being assigned to
 			parseExpression();
-			System.out.println("Parsing assignment complete ");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -153,12 +265,18 @@ public class Parser {
 		}
 	}
 	
+	
+	//VARDECL
 	private void parseVariableDeclaration(){
 		try {
-			System.out.println("Parsing var decl");
+			
+			
+			System.out.println("Expecting <type>");
+			//match a type for this variable
 			match("int|string|boolean");
-			match("[a-z]");
-			System.out.println("Parsing var devl complete ");
+			
+			//parse the ID for this vardecl
+			parseId();
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -166,13 +284,19 @@ public class Parser {
 		}
 	}
 	
+//Parse WHILE BLOCKS
 	private void parseWhileStatement(){
 		try {
-			System.out.println("Parsing while statement ");
+			
+			System.out.println("Expecting <while>");
+			//match while keyword
 			match("while");
+			
+			//parse boolean expr
 			parseBooleanExpression();
+			
+			//parse body of the while loop
 			parseBlock();
-			System.out.println("Parsing while statement complete");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -180,13 +304,19 @@ public class Parser {
 		}
 	}
 	
+//IF STATEMENT
 	private void parseIfStatement(){
 		try {
-			System.out.println("Parsing if statement ");
+			
+			System.out.println("Expecting <if>");
+			//match if keyword
 			match("if");
+			
+			//parse boolean expr
 			parseBooleanExpression();
+			
+			//parse body of the if statememt
 			parseBlock();
-			System.out.println("Parsing if statement complete");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -194,29 +324,53 @@ public class Parser {
 		}
 	}
 	
+//Parses expressions
 	private void parseExpression(){
 		try {
-			System.out.println("Parsing EXPR");
+			
+		//grab current token
 			String nextToken = nextToken().getIndicator();
+			
+			//figure out what type of expression it is
 			switch(nextToken){
+			
+			//if digit, we (hope) it is an integer expression
 				case("DIGIT"):{
 					parseIntExpression();
 				
-				}
+				} 
 				
+				break;
+				
+				//if a double quote, we hope it is a string expr
 				case("DOUBLEQUOTE"):{
 					parseStringExpression();
 					
 				}
 				
+				break;
+				
+				
+				//either of these could be a boolean expr
 				case("LEFTPAREN"):{
 					parseBooleanExpression();
 					
 				}
+				break;
 				
+				case("BOOLEANVALUE"):{
+					parseBooleanExpression();
+				}
+			
+				
+				break;
+				
+				//could be just an ID by itself
 				case("ID"):{
 					parseId();
 				}
+				
+				break;
 				
 				default:{
 					//TODO raise error
@@ -224,7 +378,6 @@ public class Parser {
 				}
 			}
 			
-			System.out.println("Parsing EXPR COMPLETE ");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -232,18 +385,22 @@ public class Parser {
 		}
 	}
 	
+	
+	//parse an integer expression
 	private void parseIntExpression(){
 		try {
-			System.out.println("Parsing int expr ");
+		//match a digit
+			System.out.println("Expecting <digit>");
 			match("[0-9]");
-			if(nextToken().getValue().matches("+")){
+			
+			//parse integer operation
+			if(nextToken().getValue().matches("\\+")){
 				parseIntegerOperation();
 				parseExpression();
 			}
 			else{
 				return;
 			}
-			System.out.println("Parsing int expr complete ");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -251,13 +408,21 @@ public class Parser {
 		}
 	}
 	
+	
+	//parse a string expression
 	private void parseStringExpression(){
 		try {
-			System.out.println("Parsing String expr ");
+			
+			System.out.println("Expecting <quote>");
+		//match double quotes
 			match("\"");
+			
+			//parse charlist inside of the string
 			parseCharlist();
+			
+			System.out.println("Expecting <quote>");
+			//match end double quotes
 			match("\"");
-			System.out.println("Parsing String expr completes");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -265,22 +430,28 @@ public class Parser {
 		}
 	}
 	
+	
+	//parse a boolean expression
 	private void parseBooleanExpression(){
 		try {
-			System.out.println("Parsing bool expr");
+			//grab next token
 			String nextToken = nextToken().getValue();
+			
+			//match boolean values
+			
 			if(nextToken.matches("false|true")){
 				match("false|true");
 			}
 			else{
-			
-				match("(");
+			//match (Expr boolop Expr)
+				System.out.println("Expecting <(>");
+				match("\\(");
 				parseExpression();
 				parseBooleanOperation();
 				parseExpression();
-				match(")");
+				System.out.println("Expecting <)>");
+				match("\\)");
 			}
-			System.out.println("Parsing bool expr complete");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -288,11 +459,14 @@ public class Parser {
 		}
 	}
 	
+	
+	//parses a single id
 	private void parseId(){
 		try {
-			System.out.println("Parsing ID");
+			
+			//single chars denote ids hopefully
+			System.out.println("Expecting <id>");
 			match("[a-z]");
-			System.out.println("Parsing id complete");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -300,19 +474,34 @@ public class Parser {
 		}
 	}
 	
+	
+	//parses charlists which are contained inside strings
 	private void parseCharlist(){
 		try {
-			System.out.println("Parsing charlist ");
+			
+			//grab next token
 			String nextToken = nextToken().getValue();
-			if(nextToken.matches("[a-z]") | nextToken.matches("[ ]")){
+			
+			//only chars and spaces allowed inside charlists
+			if(nextToken.matches("[a-z]|[ ]")){
+				
+				System.out.println("Expecting <char> or <space>");
+				//match char or whitespace
+				match("[a-z]|[ ]");
+				
+				//continue parsing the charlist....
 				parseCharlist();
+			}
+		
+			//until we match an end quote.
+			if(nextToken.matches("\"")){
+					return;
 			}
 			else{
 				//epcelon production
-				
+				return;
 			}
-			
-			System.out.println("Parsing charlist compelte");
+				
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -320,11 +509,14 @@ public class Parser {
 		}
 	}
 	
+	
+//parse a boolean operation
 	private void parseBooleanOperation(){
 		try {
-			System.out.println("Parsing bool op");
+			
+			//match either boolop equals? or doesnt equal?
+			System.out.println("Expecting <booleanOp>");
 			match("==|!=");
-			System.out.println("Parsing bool op complete");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -334,9 +526,10 @@ public class Parser {
 	
 	private void parseIntegerOperation(){
 		try {
-			System.out.println("Parsing int op ");
-			match("+");
-			System.out.println("Parsing int op complete ");
+			
+			//match the integer operation
+			System.out.println("Expecting <+>");
+			match("\\+");
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -346,23 +539,24 @@ public class Parser {
 	}
 	
 	
+//matches the current token against the provided regex.
 	private void match(String toMatch){
 	
 		try {
-			System.out.println("Expecting: " + toMatch);
-
 			//if we have another token and match correctly, consume the token.
 			if(hasNextToken()){
+				
+				//get value of the current token
 				String tokenVal = nextToken().getValue();
-				System.out.println("Got: " + tokenVal);
+				
 				
 				if(tokenVal.matches(toMatch)){
-					System.out.println("Got a " + toMatch);
+					System.out.println("Got " + tokenVal);
 					consumeToken();
 				}
 				//else raise an error or warning.
 				else{
-					System.out.println("ERROR!");
+					parseError();
 					//TODO make an error/warning function and call it here.
 				}
 			}
@@ -373,9 +567,10 @@ public class Parser {
 		}
 	}
 	
+//consumes a token
+//TODO this function should pass consumed token to a CST and a symbol table.
 	private void consumeToken(){
 		try {
-			System.out.println("removing " + tokenStream.get(0).value);
 			tokenStream.remove(0);
 		} catch (Exception e) {
 			 
@@ -384,9 +579,13 @@ public class Parser {
 		}
 	}
 	
+	
+//returns next token
 	private Token nextToken(){
 		try {
-			return tokenStream.get(0);
+			if(hasNextToken()){
+				return tokenStream.get(0);
+			}
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -395,6 +594,7 @@ public class Parser {
 		return null;
 	}
 	
+//returns true if there is another token in the token stream. returns false otherwise.
 	private boolean hasNextToken(){
 		try {
 			return !(tokenStream.isEmpty());
@@ -403,5 +603,10 @@ public class Parser {
 			System.out.println("error checking next token ");
 		}
 		return false;
+	}
+	
+	private void parseError(){
+		System.out.println("[Line: " + nextToken().getLineNum() + "]" + "ERROR: Unexpected token " + nextToken().getValue());
+		System.exit(1);
 	}
 }
