@@ -1,10 +1,12 @@
-# Compiler
+# Compiler!
 ========================================================
-Compiler for a simpler grammar.
-------------------------------------
+
+
 Build Instructions
 ==================================
 -Using java SE 7 which can be found at http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html
+
+
 -A good tutorial  on how to run a java program from the command line can be found here: http://introcs.cs.princeton.edu/java/15inout/windows-cmd.html
 
 
