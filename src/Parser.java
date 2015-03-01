@@ -28,8 +28,13 @@ public class Parser {
 			//match EOF
 			System.out.println("Expecting <$>");
 			match("[$]");
-			System.out.println("Ending Program");
-			System.out.println("Parse Success!");
+			if(hasNextToken()){
+				this.codeAfterEOF();
+			}
+			else{
+				parseSuccess();
+			}
+		
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -686,6 +691,23 @@ public class Parser {
 		System.out.println("[Line: " + token.getLineNum() + "]" + "Unexpected token <" + token.getValue() + ">");
 		System.out.println("Parse Fail....");
 		System.exit(1);
-		
 	}
+	
+	
+	//prints a warning if code was found after EOF
+	private void codeAfterEOF(){
+		System.out.println("WARNING: Found tokens after end of file. Removing these tokens");
+		while(hasNextToken()){
+			System.out.println("Removing: " + nextToken().toString());
+			tokenStream.remove(0);
+		}
+		parseSuccess();
+	}
+	
+	//prints out friendly messages if parsing was successful
+	private void parseSuccess(){
+		System.out.println("Ending Program");
+		System.out.println("Parse Success!");
+	}
+	
 }

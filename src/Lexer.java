@@ -20,6 +20,10 @@ public class Lexer {
 	private ArrayList<String> errorList;
 	
 	
+	//only using this variable to check if a string spills on to the next line
+	private int initialStringLineNum;
+	
+	
 
 		
 	
@@ -127,7 +131,7 @@ public class Lexer {
 			
 			//String Mode
 			if(isInsideString){
-				token = stringMode(toMatch, restOfToken);
+				token = stringMode(toMatch, restOfToken, lineNum);
 					
 			//Have to handle string errors differently than normal lexical errors
 			//only chars or spacechars are allowed. 
@@ -196,9 +200,12 @@ public class Lexer {
 				//will hold the regex object that matches a reserved word
 				RegexPatterns.RegX regexMatch = null;
 				
+				//temporary regex object that matches a reserved word
+				RegexPatterns.RegX tempMatch = null;
+				
 				
 					//lookahead to see if we can match a reserved word, instead of returning IDs
-				for(int i =1; i< restOfToken.length(); i++){				
+				for(int i =1; i< restOfToken.length(); i++){	
 					//get the next character on the token
 					nextChar = String.valueOf(restOfToken.charAt(i));	
 				
@@ -208,12 +215,15 @@ public class Lexer {
 						lookAhead+=nextChar;
 							
 						//see if this string matches a reserved word
-						regexMatch= longestMatchedReserved(lookAhead);
+						tempMatch= longestMatchedReserved(lookAhead);
 							
 						//if the string matches a reserved word, get the code of that regex.
 						//we know that after every iteration of the for loop that the lookahead is longer than the previous attempted match.
 						//therefore, the longest match is stored in bestRegexMatch after each iteration.
-						if(regexMatch != null){
+						if(tempMatch != null){
+							//set our regexMatch to the temporary match
+							regexMatch = tempMatch;
+							//matched string
 							matched = lookAhead;
 							bestRegexMatch = regexMatch.getCode();
 						}
@@ -378,6 +388,8 @@ public class Lexer {
 		//start string mode
 		this.isInsideString = true;
 		
+		this.initialStringLineNum = tempToken.getLineNum();
+		
 		return tempToken;
 	}
 	
@@ -386,12 +398,14 @@ public class Lexer {
 	//Chars, charlists, and spacechars allowed only.
 	//returns a token object if a valid token is found
 	//returns null if no valid token can be found
-	public Token stringMode(String toMatch, String restOfToken){
+	public Token stringMode(String toMatch, String restOfToken, int lineNum){
 		Token tempToken = new Token();
 		
 		try{
 			
-			
+			if(lineNum > this.initialStringLineNum){
+				stringSpillOver(lineNum);
+			}
 			//Only attempting to match quotes, single chars, or any version of whitespace. Anything else is a lex error
 			
 			//These are the regexes we are interested in matching.
@@ -447,6 +461,11 @@ public class Lexer {
 	public void buildStringError(String invalidToken, int lineNum){
 		String errorMessage = "ERROR: [Line " + lineNum + "] Invalid token found inside String. \n";
 		errorMessage +=  "Found: " + "'" +invalidToken + "' , expecting char or space";
+		errorList.add(errorMessage);
+	}
+	
+	public void stringSpillOver(int lineNum){
+		String errorMessage = "ERROR: [Line " + lineNum + "] String definitions cannot spill on to the next line.";
 		errorList.add(errorMessage);
 	}
 	
