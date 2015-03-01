@@ -404,7 +404,7 @@ public class Lexer {
 		try{
 			
 			if(lineNum > this.initialStringLineNum){
-				stringSpillOver(lineNum);
+				stringSpillOver(lineNum);	
 			}
 			//Only attempting to match quotes, single chars, or any version of whitespace. Anything else is a lex error
 			
