@@ -1,9 +1,11 @@
 import java.util.ArrayList;
 
 
+
+
+
 public class Parser {
 	private ArrayList<Token> tokenStream;
-
 	
 	public Parser(ArrayList<Token> tokenStream){
 		this.tokenStream = tokenStream;
@@ -11,6 +13,8 @@ public class Parser {
 	
 	
 	//main parser function
+	//Recursive descent parser
+	//also generates a concrete syntax tree while parsing
 	public void parse(){
 		try{
 		parseProgram();
