@@ -3,9 +3,15 @@ package tree;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/*
+ * Node Class
+ * Makes up nodes of either a CST or AST
+ * 
+ */
+
 public class Node {
 	
-///Fields
+//--Fields--//
 	
 	//symbol table data about this node.
 	private HashMap<String, String> nodeData;
@@ -17,10 +23,18 @@ public class Node {
 	private Node parent;
 	
 	
-//Constructors
+//--Constructors--//
 	
-	//params:
-	//parent => this node's parent node
+	
+	public Node(){
+		this.nodeData = new HashMap<String, String>();
+		this.children = new ArrayList<Node>();
+		this.parent = null;
+	}
+	
+	/*
+	 * @params parent => this node's parent node
+	 */
 	public Node(Node parent){
 		this.nodeData = new HashMap<String, String>();
 		this.children = new ArrayList<Node>();
@@ -28,21 +42,53 @@ public class Node {
 	}
 	
 	
-////Methods
+//--Methods--//
 	
-	//returns this node's parent
+	/*
+	 * returns the parent node of this node
+	 * @return Node, the parent node of this node
+	 * 
+	 */
 	public Node getParent(){
 		return this.parent;
 	}
 	
+	public void setParent(Node parent){
+		this.parent = parent;
+	}
 	
-	//returns the data associated with this node (ie symbol table data)
+	
+	/*
+	 * returns the data associated with this node (ie symbol table data)
+	 * @return HashMap of node data
+	 */
 	public HashMap<String,String> getNodeData(){
 		return this.nodeData;
 	}
 	
-	//add a child node to this node
+	public void addEntry(String key, String value){
+		this.nodeData.put(key, value);
+	}
+	
+	/*
+	 * add a child node to this node.
+	 * @params Node node, the node to add to this nodes children
+	 * 
+	 */
 	public void addChild(Node node){
 		this.children.add(node);
 	}
+
+	public ArrayList<Node> getChildren() {
+		return children;
+	}
+	
+	public String toString(){
+		String ret = "";
+		for(String key : nodeData.keySet()){
+			ret += nodeData.get(key);	
+		}
+		return ret;
+	}
+	
 }

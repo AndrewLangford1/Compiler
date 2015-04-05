@@ -105,8 +105,4 @@ public class Token {
 		return "<" + value + " , " + indicator+ ">";
 	}
 
-	
-	
-
-
 }

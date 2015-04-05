@@ -92,7 +92,7 @@ public class Compiler {
 				return tokenStream;
 			}
 			
-		} 
+		}
 		
 		catch(Exception ex){
 			System.out.println(ex);
@@ -100,6 +100,10 @@ public class Compiler {
 		return null;
 	}
 	
+	
+	/*
+	 * 
+	 */
 	private static void parseInput(ArrayList<Token> tokenStream){
 		System.out.println("Moving on to parse.....");
 		Parser parser = new Parser(tokenStream);
