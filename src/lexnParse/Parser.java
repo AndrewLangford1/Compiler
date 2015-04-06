@@ -1,6 +1,8 @@
+package lexnParse;
 import java.util.ArrayList;
 
-import tree.SyntaxTree;
+import dataStructures.SyntaxTree;
+import dataStructures.Token;
 
 
 
@@ -26,24 +28,28 @@ public class Parser {
 	
 	//main parser function
 	//Recursive descent parser
-	//@return a concrete syntax tree
-	public void parse(){
+	//@return a concrete syntax tree or null if there was errors
+	public SyntaxTree parse(){
 		try{
 			
 			//parse the program
-			parseProgram();
+			boolean parseSuccess = parseProgram();
 			
-			
-			//print the CST to the console
-			this.cst.print(this.cst.getRoot(), 0);
+			//if parse succeeds, return the CST it generated during the parse
+			if(parseSuccess){
+				return this.cst;
+			}
 			
 		} catch(Exception ex){
 			System.out.println(ex);
 			System.out.println("error in main parse function");
 		}
+		
+		//if parse fails or there was an error, return null
+		return null;
 	}
 	
-	private void parseProgram(){
+	private boolean parseProgram(){
 		try {
 			
 			//set the root node of the cst
@@ -56,9 +62,11 @@ public class Parser {
 			match("[$]");
 			if(hasNextToken()){
 				this.codeAfterEOF();
+				return false;
 			}
 			else{
 				parseSuccess();
+				return true;
 			}
 		
 		} catch (Exception e) {
@@ -66,6 +74,8 @@ public class Parser {
 			System.out.println(e);
 			System.out.println("error parsing program");
 		}
+		
+		return false;
 	}
 	
 	
@@ -303,7 +313,7 @@ public class Parser {
 	private void parsePrintStatement(){
 		try {
 			//add a branch node to the cst
-			this.cst.addBranchNode("Print Statement");
+			this.cst.addBranchNode("PrintStatement");
 			
 			
 			System.out.println("Expecting <print>");
@@ -373,7 +383,7 @@ public class Parser {
 		
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("Type");
+			this.cst.addBranchNode("type");
 			
 			//match a type for this variable
 			match("int|string|boolean");
@@ -426,7 +436,7 @@ public class Parser {
 		try {
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("If Statement");
+			this.cst.addBranchNode("IfStatement");
 			
 			
 			System.out.println("Expecting <if>");
@@ -546,7 +556,7 @@ public class Parser {
 			System.out.println("Expecting <digit>");
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("Digit");
+			this.cst.addBranchNode("digit");
 			
 			
 			//match a digit
@@ -666,11 +676,11 @@ public class Parser {
 		try {
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("ID");
+			this.cst.addBranchNode("Id");
 			
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("Char");
+			this.cst.addBranchNode("char");
 			
 			
 			System.out.println("Expecting <id>");
@@ -758,7 +768,7 @@ public class Parser {
 	private void parseBooleanOperation(){
 		try {
 			//add a branch node to the cst
-			this.cst.addBranchNode("BoolOp");
+			this.cst.addBranchNode("boolop");
 			
 			//match either boolop equals? or doesnt equal?
 			System.out.println("Expecting <booleanOp>");
@@ -775,7 +785,7 @@ public class Parser {
 	private void parseIntegerOperation(){
 		try {
 			//add a branch node to the cst
-			this.cst.addBranchNode("IntOp");
+			this.cst.addBranchNode("intop");
 			
 			//match the integer operation
 			System.out.println("Expecting <+>");
@@ -805,7 +815,7 @@ public class Parser {
 					System.out.println("Got " + tokenVal);
 					
 					//any matches are leaf nodes.
-					this.cst.addLeafNode(nextToken().toString());
+					this.cst.addLeafNode(nextToken().toString(), nextToken().serialize());
 					
 					//consume the token
 					consumeToken();

@@ -1,4 +1,8 @@
-package tree;
+package dataStructures;
+
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 
 public class SyntaxTree {
 	
@@ -79,13 +83,11 @@ public class SyntaxTree {
 		this.currentNode = currentNode.getParent();
 	}
 	
-	
-	
-	public void addBranchNode(String label){
-		
+	public void addBranchNode(String title){
+				
 		//create a new node
 		Node branchNode = new Node();
-		branchNode.addEntry("label", label);
+		branchNode.addEntry("title", title);
 		
 		
 		//if there's no root node, make this node the root
@@ -105,15 +107,22 @@ public class SyntaxTree {
 			this.currentNode.addChild(branchNode);
 			
 		}
-
+	
 		//current node is now new branchnode
 		this.currentNode = branchNode;
 	}
 	
-	public void addLeafNode(String label){
+	public void addLeafNode(String title, HashMap<String, String> tokenData){
 		//create a new node
 		Node leafNode = new Node();
-		leafNode.addEntry("label", label);
+		
+		//set the title of this node for printing purposes
+		leafNode.addEntry("title", title);
+		
+		//copy relevant token data into this node;
+		for(Entry<String, String> entry : tokenData.entrySet()){
+			leafNode.addEntry(entry.getKey(), entry.getValue());
+		}
 		
 		if(this.root == null){
 			//TODO should raise an error
@@ -135,7 +144,7 @@ public class SyntaxTree {
 	public void print(Node node, int level){
 		String toPrint = "";
 		for(int i =0; i<level; i++){
-			toPrint += "\t";
+			toPrint += "  ";
 		}
 		System.out.println(toPrint+ node.toString());
 		if(node.getChildren().isEmpty()){
@@ -145,6 +154,19 @@ public class SyntaxTree {
 			level += 1;
 			for(Node x : node.getChildren()){
 				this.print(x, level);
+			}
+		}
+	}
+	
+	
+	
+	public void iterate(Node node){
+		if(node.getChildren().isEmpty()){
+			return;
+		}
+		else{
+			for(Node x : node.getChildren()){
+				iterate(x);
 			}
 		}
 	}

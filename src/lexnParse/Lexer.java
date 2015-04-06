@@ -1,4 +1,8 @@
+package lexnParse;
 import java.util.ArrayList;
+
+import utilities.RegexPatterns;
+import dataStructures.Token;
 
 /*
  * Lexer Class

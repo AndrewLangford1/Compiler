@@ -1,4 +1,4 @@
-package tree;
+package dataStructures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,11 +84,7 @@ public class Node {
 	}
 	
 	public String toString(){
-		String ret = "";
-		for(String key : nodeData.keySet()){
-			ret += nodeData.get(key);	
-		}
-		return ret;
+		return this.nodeData.get("title");
 	}
 	
 }

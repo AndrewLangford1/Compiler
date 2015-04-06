@@ -12,7 +12,6 @@
             j = 1
         }
         
-        print = 
         print(i)
         print(2)
         print(j)

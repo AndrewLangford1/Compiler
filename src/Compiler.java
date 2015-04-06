@@ -1,8 +1,20 @@
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import lexnParse.Lexer;
+import lexnParse.Parser;
+import dataStructures.Token;
+import dataStructures.SyntaxTree;
 
+
+
+
+
+
+
+	
 
 public class Compiler {
 	private static Scanner scanner;
@@ -12,29 +24,37 @@ public class Compiler {
 	public static void main(String[] args){
 		
 		
-		try {
+		try { 
 			//source file to be translated to target
 			//for execution in command prompt
 			File source = new File(args[0]);
 			
-			System.out.println("Begin Compilation:  " + source.getPath());
+			System.out.println("---> Begin Compilation:  " + source.getPath());
 			
+			
+			//lex the source file, grab the token stream from lex
 			ArrayList<Token> tokenStream = lexographicAnalyze(source);
 			
 			
-			//move on to parse if there weren't any errors
-			if(!(tokenStream == null)){
-				parseInput(tokenStream);
-			
-			}
 			//kill compilation if there were errors in lex
-			else{
-				return;
+			if(tokenStream == null){
+				killCompilation();
 			}
 			
+			//parse the source file, grab the CST from parse
+			SyntaxTree cst = parseInput(tokenStream);
+			
+			//kill compilation if there were errors parse
+			if(cst == null){
+				killCompilation();
+			}
+			
+			
+			// TODO semantic analyze CST
 			
 			
 		
+			
 		} catch(Exception ex){
 			System.out.println("error found in main lex function");
 			System.out.println(ex);	
@@ -58,7 +78,7 @@ public class Compiler {
 			int lineCount = 0;
 			
 			
-			System.out.println("Lexing.....");
+			System.out.println("\n---> Lexing");
 			
 			//iterate over source file
 			while(scanner.hasNextLine()){
@@ -78,13 +98,11 @@ public class Compiler {
 			//if we have errors, kill compilation and print them out to the console.
 			if(!errors.isEmpty()){
 				lexer.printErrors();
-				//returning null will stop Compilation
-				return null;
 			}
 					
 			else{
 				//print the token stream out, for shits and gigs
-				System.out.println("Lex Success! ");
+				System.out.println("\n---> Lex Success! ");
 				
 				lexer.printTokens();
 				
@@ -97,16 +115,34 @@ public class Compiler {
 		catch(Exception ex){
 			System.out.println(ex);
 		}
+		//returning null will stop Compilation
 		return null;
 	}
 	
 	
 	/*
-	 * 
+	 * parse the input, and return a CST to perform Semantic Analysis on
+	 * @param tokenStream, the token stream generated from lex
+	 * @return a cst generated during parse
 	 */
-	private static void parseInput(ArrayList<Token> tokenStream){
-		System.out.println("Moving on to parse.....");
+	private static SyntaxTree parseInput(ArrayList<Token> tokenStream){
+		System.out.println("\n---> Parsing");
+		
 		Parser parser = new Parser(tokenStream);
-		parser.parse();
+		
+		//parse the input
+		SyntaxTree cst = parser.parse();
+		
+		
+		System.out.println("\n---> Concrete Syntax Tree");
+		//print the CST 
+		cst.print(cst.getRoot(), 0);
+		
+		return cst;
+	}
+	
+	private static void killCompilation(){
+		System.out.println("Stopping Compilation!");
+		System.exit(0);
 	}
 }

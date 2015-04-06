@@ -1,3 +1,4 @@
+package utilities;
 public class RegexPatterns{
 //This enum class is simply a namespace for regular expression strings
 //they match strings in the Final Project Grammar.

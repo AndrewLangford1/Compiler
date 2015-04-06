@@ -1,3 +1,6 @@
+package dataStructures;
+
+import java.util.HashMap;
 
 public class Token {
 	
@@ -99,10 +102,19 @@ public class Token {
 		this.lineNum = lineNum;
 	}
 	
-
 	@Override
 	public String toString() {
 		return "<" + value + " , " + indicator+ ">";
 	}
+	
+	public HashMap<String, String> serialize(){
+		HashMap<String, String> tokenAsHash = new HashMap<String, String>();
+		tokenAsHash.put("indicator", this.indicator);
+		tokenAsHash.put("value", this.value);
+		tokenAsHash.put("lineNum" , String.valueOf(this.lineNum));
+		return tokenAsHash;
+	}
+	
+	
 
 }
