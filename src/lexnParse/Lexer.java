@@ -105,7 +105,7 @@ public class Lexer {
 				//STRINGS
 				//will enter string mode if this pattern is matched
 				if(toMatch.matches(RegexPatterns.RegX.DOUBLEQUOTE.getPattern())){
-					//enter string mode, create double quote token
+					this.initialStringLineNum = lineNum;
 					token = beginStringMode(toMatch);
 					return token;
 				}
@@ -391,11 +391,7 @@ public class Lexer {
 		
 		//start string mode
 		this.isInsideString = true;
-		
-		this.initialStringLineNum = tempToken.getLineNum();
-		
-		System.out.println(tempToken.toString())
-		
+				
 		return tempToken;
 	}
 	

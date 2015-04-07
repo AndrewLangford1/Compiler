@@ -58,6 +58,14 @@ public class Token {
 		this.indicator = indicator;
 	}
 	
+	public Token(String value, int regexCode, int type, String indicator, int lineNum){
+		this.value = value;
+		this.regexCode = regexCode;
+		this.type = type;
+		this.indicator = indicator;
+		this.lineNum = lineNum;
+	}
+	
 	
 	//INSTANCE METHODS
 	
