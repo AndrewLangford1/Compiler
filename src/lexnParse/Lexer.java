@@ -394,6 +394,8 @@ public class Lexer {
 		
 		this.initialStringLineNum = tempToken.getLineNum();
 		
+		System.out.println(tempToken.toString())
+		
 		return tempToken;
 	}
 	
@@ -406,7 +408,7 @@ public class Lexer {
 		Token tempToken = new Token();
 		
 		try{
-			
+		
 			if(lineNum > this.initialStringLineNum){
 				stringSpillOver(lineNum);	
 			}

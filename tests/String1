@@ -1,4 +1,5 @@
 {
- inti
- i=0
-}$
+ string s
+ s = "hi"
+ 
+ }$
