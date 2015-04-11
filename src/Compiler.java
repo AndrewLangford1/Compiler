@@ -3,24 +3,30 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import semanticAnalysis.SemanticAnalyzer;
 import lexnParse.Lexer;
 import lexnParse.Parser;
+import dataStructures.AbstractSyntaxTree;
 import dataStructures.Token;
 import dataStructures.SyntaxTree;
 
-
-
-
-
-
-
-	
-
+/**
+ * 
+ * 
+ * @author Andrew
+ * 
+ * Main Compiler class
+ *
+ */
 public class Compiler {
 	private static Scanner scanner;
 
 	
-	//takes in a source file, and passes them on to the tokenizer.
+	/**
+	 * Main Function
+	 * performs compilation
+	 * @param args the file arguments
+	 */
 	public static void main(String[] args){
 		
 		
@@ -52,19 +58,24 @@ public class Compiler {
 			
 			// TODO semantic analyze CST
 			
+			semanticAnalyze(cst);
+			
 			
 		
 			
 		} catch(Exception ex){
-			System.out.println("error found in main lex function");
+			System.out.println("error found in main Compilation Function");
 			System.out.println(ex);	
+			ex.printStackTrace();
 		}
 	}
 	
-	
-	//Function to perform lexographic analysis
-	//Returns a list of tokens if lex was successful
-	//returns null if there were errors found during lexing.
+	/**
+	 *Function to perform lexographic analysis
+	 * 
+	 * @param sourceFile the file to compile
+	 * @return an arrayList of tokens, or null if something went wrong
+	 */
 	private static ArrayList<Token> lexographicAnalyze(File sourceFile){
 		try{
 		
@@ -113,34 +124,78 @@ public class Compiler {
 		}
 		
 		catch(Exception ex){
+			System.out.println("Error during Lex process");
 			System.out.println(ex);
+			ex.printStackTrace();
 		}
 		//returning null will stop Compilation
 		return null;
 	}
 	
 	
-	/*
+	/**
 	 * parse the input, and return a CST to perform Semantic Analysis on
 	 * @param tokenStream, the token stream generated from lex
 	 * @return a cst generated during parse
 	 */
 	private static SyntaxTree parseInput(ArrayList<Token> tokenStream){
-		System.out.println("\n---> Parsing");
+		try {
+			System.out.println("\n---> Parsing");
+			
+			Parser parser = new Parser(tokenStream);
+			
+			//parse the input
+			SyntaxTree cst = parser.parse();
+			
+			
+			System.out.println("\n---> Concrete Syntax Tree");
+			
+			//print the CST 
+			cst.print();
+			
+			
+			//return the cst if successful
+			return cst;
+		} catch (Exception e) {
+			System.out.println("Error during Parse Phase");
+			e.printStackTrace();
+		}
 		
-		Parser parser = new Parser(tokenStream);
 		
-		//parse the input
-		SyntaxTree cst = parser.parse();
-		
-		
-		System.out.println("\n---> Concrete Syntax Tree");
-		//print the CST 
-		cst.print(cst.getRoot(), 0);
-		
-		return cst;
+		//return null if something went wrong
+		return null;
 	}
 	
+	
+	/**
+	 * 
+	 * takes in a CST, generates an AST, and performs scope and type checking
+	 * 
+	 * @param cst the concrete syntax tree to be passed on to semantic analysis
+	 * @return AbstractSyntaxTree ast or null if something went wrong
+	 */
+	private static AbstractSyntaxTree semanticAnalyze(SyntaxTree cst){
+		try {
+			SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(cst);
+			
+			System.out.println("\n---> Abstract Syntax Tree");
+			
+			//semanticAnalyzer.getAbstractSyntaxTree().print();
+			
+			return semanticAnalyzer.getAbstractSyntaxTree();
+		} catch (Exception e) {
+			System.out.println("Error during Semantic Analysis Phase");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	
+	/**
+	 * Prints exit message and kills the program
+	 */
 	private static void killCompilation(){
 		System.out.println("Stopping Compilation!");
 		System.exit(0);

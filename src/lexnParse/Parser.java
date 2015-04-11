@@ -23,6 +23,7 @@ public class Parser {
 	public Parser(ArrayList<Token> tokenStream){
 		this.tokenStream = tokenStream;
 		this.cst = new SyntaxTree();
+		
 	}
 	
 	
@@ -314,7 +315,6 @@ public class Parser {
 		try {
 			//add a branch node to the cst
 			this.cst.addBranchNode("PrintStatement");
-			
 			
 			System.out.println("Expecting <print>");
 			match("print");
@@ -807,15 +807,18 @@ public class Parser {
 			//if we have another token and match correctly, consume the token.
 			if(hasNextToken()){
 				
+				Token nextToken = nextToken();
+				
 				//get value of the current token
-				String tokenVal = nextToken().getValue();
+				
+				String tokenVal = nextToken.getValue();
 				
 				
 				if(tokenVal.matches(toMatch)){
 					System.out.println("Got " + tokenVal);
 					
-					//any matches are leaf nodes.
-					this.cst.addLeafNode(nextToken().toString(), nextToken().serialize());
+					//any matches are leaf nodes for the cst
+					this.cst.addLeafNode(nextToken.toString(), nextToken);
 					
 					//consume the token
 					consumeToken();
@@ -841,8 +844,12 @@ public class Parser {
 		}
 	}
 	
+	
+	
+	
+
+	
 //consumes a token
-//TODO this function should pass consumed token to a CST and a symbol table.
 	private void consumeToken(){
 		try {
 			tokenStream.remove(0);

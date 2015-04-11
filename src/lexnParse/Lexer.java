@@ -55,7 +55,7 @@ public class Lexer {
 					//chop found tokens off the head of our unlexed token
 					
 					//chops multiple chars
-					if(lexedToken.value.length()>1){
+					if(lexedToken.getValue().length()>1){
 						unlexedToken = unlexedToken.substring(lexedToken.getValue().length(), unlexedToken.length());
 					}
 					

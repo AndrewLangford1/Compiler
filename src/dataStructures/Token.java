@@ -1,6 +1,5 @@
 package dataStructures;
 
-import java.util.HashMap;
 
 public class Token {
 	
@@ -8,17 +7,17 @@ public class Token {
 	//fields
 	
 	//value of the token
-	public String value;
+	private String value;
 	
 	//type of token: see enum TokenType
-	public int type;
+	private int type;
 	
 	//Regex code (see RegexPatterns) that matches this token
-	public int regexCode;
+	private int regexCode;
 	
-	public String indicator;
+	private String indicator;
 	
-	public int lineNum;
+	private int lineNum;
 
 	//list of possible token types
 	public enum TokenType{
@@ -57,55 +56,75 @@ public class Token {
 		this.type = type;
 		this.indicator = indicator;
 	}
-	
-	public Token(String value, int regexCode, int type, String indicator, int lineNum){
-		this.value = value;
-		this.regexCode = regexCode;
-		this.type = type;
-		this.indicator = indicator;
-		this.lineNum = lineNum;
-	}
-	
-	
+		
 	//INSTANCE METHODS
 	
-	public int getType() {
-		return type;
-	}
-
-	public void setType(int type) {
-		this.type = type;
-	}
-
+	/**
+	 * @return the value
+	 */
 	public String getValue() {
 		return value;
 	}
 
-
+	/**
+	 * @param value the value to set
+	 */
 	public void setValue(String value) {
 		this.value = value;
 	}
-	
+
+	/**
+	 * @return the type
+	 */
+	public int getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(int type) {
+		this.type = type;
+	}
+
+	/**
+	 * @return the regexCode
+	 */
 	public int getRegexCode() {
 		return regexCode;
 	}
 
+	/**
+	 * @param regexCode the regexCode to set
+	 */
 	public void setRegexCode(int regexCode) {
 		this.regexCode = regexCode;
 	}
 
+	/**
+	 * @return the indicator
+	 */
 	public String getIndicator() {
 		return indicator;
 	}
 
+	/**
+	 * @param indicator the indicator to set
+	 */
 	public void setIndicator(String indicator) {
 		this.indicator = indicator;
 	}
-	
+
+	/**
+	 * @return the lineNum
+	 */
 	public int getLineNum() {
 		return lineNum;
 	}
 
+	/**
+	 * @param lineNum the lineNum to set
+	 */
 	public void setLineNum(int lineNum) {
 		this.lineNum = lineNum;
 	}
@@ -115,14 +134,4 @@ public class Token {
 		return "<" + value + " , " + indicator+ ">";
 	}
 	
-	public HashMap<String, String> serialize(){
-		HashMap<String, String> tokenAsHash = new HashMap<String, String>();
-		tokenAsHash.put("indicator", this.indicator);
-		tokenAsHash.put("value", this.value);
-		tokenAsHash.put("lineNum" , String.valueOf(this.lineNum));
-		return tokenAsHash;
-	}
-	
-	
-
 }
