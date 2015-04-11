@@ -1,5 +1,7 @@
 package dataStructures;
 
+import java.util.ArrayList;
+
 
 /**
  * 
@@ -40,13 +42,18 @@ public class AbstractSyntaxTree extends SyntaxTree {
 	 */
 	private void cstToAst(Node currentCstNode){
 		try {
+			//grab the nodes children
+			ArrayList<Node> nodeChildren =  currentCstNode.getChildren();
 			
+			//get the value of the Nod
 			String currentCstNodeValue = currentCstNode.getValue();
+			
+			//
 			switch(currentCstNodeValue){
 			
 				case("Program"):{
 					//dont care whatsoever, just get the first block
-					cstToAst(currentCstNode.getChildren().get(0));
+					cstToAst(nodeChildren.get(0));
 				}
 				
 				break;
@@ -54,7 +61,7 @@ public class AbstractSyntaxTree extends SyntaxTree {
 				case("Block"):{
 					addBranchNode(currentCstNodeValue);
 					if(currentCstNode.hasChildren())
-						cstToAst(currentCstNode.getChildren().get(1));
+						cstToAst(nodeChildren.get(1));
 					
 					
 					returnToParent();
@@ -65,9 +72,9 @@ public class AbstractSyntaxTree extends SyntaxTree {
 				case("StatementList") : {
 					if(currentCstNode.hasChildren()){
 						//convert first Statement
-						cstToAst(currentCstNode.getChildren().get(0));	
+						cstToAst(nodeChildren.get(0));	
 						//convert rest of statements
-						cstToAst(currentCstNode.getChildren().get(1));
+						cstToAst(nodeChildren.get(1));
 					}
 				}
 				
@@ -75,7 +82,7 @@ public class AbstractSyntaxTree extends SyntaxTree {
 				
 				case("Statement") :{
 					//dont need a new node but need its child
-					cstToAst(currentCstNode.getChildren().get(0));
+					cstToAst(nodeChildren.get(0));
 					
 				}
 				
@@ -86,7 +93,7 @@ public class AbstractSyntaxTree extends SyntaxTree {
 					addBranchNode(currentCstNodeValue);
 					
 					//need to get the exprs output 
-					cstToAst(currentCstNode.getChildren().get(2));
+					cstToAst(nodeChildren.get(2));
 					
 					returnToParent();
 				}
@@ -96,9 +103,9 @@ public class AbstractSyntaxTree extends SyntaxTree {
 				case("AssignmentStatement") :{
 					addBranchNode(currentCstNodeValue);
 					//heading towards the ID
-					cstToAst(currentCstNode.getChildren().get(0));
+					cstToAst(nodeChildren.get(0));
 					//heading towards the Expr
-					cstToAst(currentCstNode.getChildren().get(2));
+					cstToAst(nodeChildren.get(2));
 					
 					returnToParent();
 				}
@@ -109,10 +116,10 @@ public class AbstractSyntaxTree extends SyntaxTree {
 					addBranchNode(currentCstNodeValue);
 					
 					//heading towards the type
-					cstToAst(currentCstNode.getChildren().get(0));
+					cstToAst(nodeChildren.get(0));
 					
 					//heading towards the ID
-					cstToAst(currentCstNode.getChildren().get(1));
+					cstToAst(nodeChildren.get(1));
 					
 					returnToParent();	
 				}
@@ -122,9 +129,9 @@ public class AbstractSyntaxTree extends SyntaxTree {
 				case("WhileStatement") :{
 					addBranchNode(currentCstNodeValue);
 					//head towards boolean expr
-					cstToAst(currentCstNode.getChildren().get(1));
+					cstToAst(nodeChildren.get(1));
 					//head towards Block
-					cstToAst(currentCstNode.getChildren().get(2));
+					cstToAst(nodeChildren.get(2));
 					
 					returnToParent();
 				}
@@ -134,9 +141,9 @@ public class AbstractSyntaxTree extends SyntaxTree {
 				case("IfStatement"):{
 					addBranchNode(currentCstNodeValue);
 					//head towards boolean expr
-					cstToAst(currentCstNode.getChildren().get(1));
+					cstToAst(nodeChildren.get(1));
 					//head towards block
-					cstToAst(currentCstNode.getChildren().get(2));
+					cstToAst(nodeChildren.get(2));
 					
 					returnToParent();
 				}
@@ -145,7 +152,7 @@ public class AbstractSyntaxTree extends SyntaxTree {
 				
 				case("Expr"):{
 					//head towards the type of expr this is.
-					cstToAst(currentCstNode.getChildren().get(0));
+					cstToAst(nodeChildren.get(0));
 				}
 				
 				break;
@@ -153,17 +160,19 @@ public class AbstractSyntaxTree extends SyntaxTree {
 				case("IntExpr") :{
 					
 					//digit intop Expr case
-					if(currentCstNode.getChildren().size() > 1){
+					if(nodeChildren.size() > 1){
 						
 						//head towards intop
 						//want to add + operator as a branch node before adding digits as leaves.
-						cstToAst(currentCstNode.getChildren().get(1));
+						cstToAst(nodeChildren.get(1));
 						
 						//head towards adding left digit as leaf
-						cstToAst(currentCstNode.getChildren().get(0));
+						cstToAst(nodeChildren.get(0));
 						
 						//head towards the right operand expr
-						cstToAst(currentCstNode.getChildren().get(2));
+						cstToAst(nodeChildren.get(2));
+						
+						returnToParent();
 						
 						
 					}
@@ -172,19 +181,112 @@ public class AbstractSyntaxTree extends SyntaxTree {
 					else{
 						
 						//head towards digit
-						cstToAst(currentCstNode.getChildren().get(0));
+						cstToAst(nodeChildren.get(0));
 						
+					}
+				}
+			
+				
+				break;
+				
+				case("StringExpr") :{
+					String leafValue = handleStringExpr(currentCstNode);
+					//TODO generate a new Token or something here.
+					addLeafNode(leafValue);
+				}
+				
+				break;
+				
+				case("BooleanExpr") :{
+					
+					
+					
+					//expr boolop expr case
+					if(nodeChildren.size()>1){
+						
+						//head towards boolop, make the boolop a branch node
+						cstToAst(nodeChildren.get(2));
+						
+						//head towards the left operand in the expression
+						cstToAst(nodeChildren.get(1));
+						
+						//head towards the right operand in the expression
+						cstToAst(nodeChildren.get(3));
+						
+						returnToParent();
+					}
+					
+					////just a boolval case
+					else{
+						cstToAst(nodeChildren.get(0));
 					}
 				}
 				
 				break;
 				
-				case("StringExpr") :{
-					
-					
-					
+				case("Id") :{
+					//head towards char node for the id
+					cstToAst(nodeChildren.get(0));
+				}
+				
+				break;
+				
+				case("CharList"):{
+					//dont need to do anything, stringexpr handles charlists
 					
 				}
+				
+				break;
+				
+				
+				//--NONTERMINALS WE ACTUALLY CARE ABOUT--//
+				case("type"):{
+					//type nonterminal will be first child, grab that and add a leaf
+					Node leafNode = nodeChildren.get(0);
+					addLeafNode(leafNode.getValue(), leafNode.getToken());
+				}
+				
+				break;
+				
+				case("char"):{
+					//note, this should only be called by an Id, all other chars should be handled by the stringexpr case
+					
+					//char nonterminal will be first child, grab that and add a leaf.
+					Node leafNode = nodeChildren.get(0);
+					addLeafNode(leafNode.getValue(), leafNode.getToken());
+				}
+				
+				break;
+				
+				case("digit") :{
+					//digit nonterminal will be first child, grab that and add a leaf
+					Node leafNode = nodeChildren.get(0);
+					addLeafNode(leafNode.getValue(), leafNode.getToken());
+				}
+				
+				break;
+				
+				case("boolop"):{
+					Node branchNode = nodeChildren.get(0);
+					addBranchNode(branchNode.getValue(), branchNode.getToken());
+				}
+				
+				break;
+				
+				case("boolval"):{
+					Node leafNode = nodeChildren.get(0);
+					addLeafNode(leafNode.getValue(), leafNode.getToken());
+				}
+				
+				break;
+				
+				case("intop"):{
+					Node branchNode = nodeChildren.get(0);
+					addBranchNode(branchNode.getValue(), branchNode.getToken());
+				}
+				
+				break;
+				
 				
 				default :{
 					//raise error
@@ -196,5 +298,52 @@ public class AbstractSyntaxTree extends SyntaxTree {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}	
-	}	
+	}
+	
+	
+	/**
+	 * Hackish way of building a string suitable for an ast from giant charlists....
+	 * Should only be called intially from a String expr node.
+	 * 
+	 * @param stringExprNode, the string expr node we want to evaluate
+	 * @return charlist, a string of concatenated chars, or null if something went wrong.
+	 */
+	private String handleStringExpr(Node stringExprNode){
+		try {
+			String charList = charlistBuilder(stringExprNode, "");
+			return charList;
+		} catch (Exception e) {
+			System.out.println("Error handling String Expression");
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+
+	/**
+	 * Recursively builds a String
+	 * 
+	 * @param currentNode the node to evaluate
+	 * @param charList the current charlist we are building.
+	 */
+	private String charlistBuilder(Node currentNode, String charList){
+		if(currentNode.isLeafNode()){
+			Token currentToken = currentNode.getToken();
+			if(currentToken.getIndicator() == "DOUBLEQUOTE")
+				charList+= "\"";
+			else
+				charList += currentToken.getValue();
+		}
+		if(currentNode.getChildren().isEmpty()){
+			return charList;
+		}
+		else{
+			for(Node x : currentNode.getChildren()){
+				charList = charlistBuilder(x, charList);
+			}
+		}
+		
+		return charList;
+	}
 }

@@ -27,12 +27,21 @@ public class SemanticAnalyzer {
 	public AbstractSyntaxTree getAbstractSyntaxTree() {
 		return abstractSyntaxTree;
 	}
-
-	/**
-	 * @param abstractSyntaxTree the abstractSyntaxTree to set
-	 */
-	public void setAbstractSyntaxTree(AbstractSyntaxTree abstractSyntaxTree) {
-		this.abstractSyntaxTree = abstractSyntaxTree;
+	
+	private void generateSymbolTable(){
+		
+		
+		
+		
+		
+		
 	}
 	
+	private void scopeCheck(){
+		
+		
+	}
+	
+	
+
 }

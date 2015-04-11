@@ -180,7 +180,7 @@ public class Compiler {
 			
 			System.out.println("\n---> Abstract Syntax Tree");
 			
-			//semanticAnalyzer.getAbstractSyntaxTree().print();
+			semanticAnalyzer.getAbstractSyntaxTree().print();
 			
 			return semanticAnalyzer.getAbstractSyntaxTree();
 		} catch (Exception e) {

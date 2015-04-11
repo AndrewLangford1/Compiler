@@ -1,5 +1,6 @@
 {
- 
- string s
- s = "hello"
+
+boolean b
+b = (false == (true != ( 2 == 2) ) )
+
 }$

@@ -90,10 +90,42 @@ public class SyntaxTree {
 	
 	/**
 	 * Add a branch node to this tree as a child of the current node.  
-	 * note: all branch nodes are non terminals in this grammar.
+	 * note: all branch nodes are non terminals in this grammar for the CST
+	 *boolop and intop are branch nodes in the AST
 	 * @param0 value the value of this node 
 	 */
 	public void addBranchNode(String value){
+				
+		//create a new node
+		Node branchNode = new Node();
+		branchNode.setValue(value);
+		branchNode.setLeafNode(false);
+		
+		//if there's no root node, make this node the root
+		if(this.root == null){
+			this.root = branchNode;
+		}
+		
+		//if we aren't root, add ourselves to our parent's children and update current to us.
+		else{
+			//set this new nodes parent
+			branchNode.setParent(this.currentNode);
+			
+			//add this node to parent's children
+			this.currentNode.addChild(branchNode);
+			
+		}
+	
+		//current node is now new branchnode
+		this.currentNode = branchNode;
+	}
+	
+	/**
+	 * Add a branch node to this tree as a child of the current node.  
+	 * note: all branch nodes are non terminals in this grammar.
+	 * @param value the value of this node , token
+	 */
+	public void addBranchNode(String value, Token token){
 				
 		//create a new node
 		Node branchNode = new Node();
@@ -134,6 +166,36 @@ public class SyntaxTree {
 		//set the title of this node for printing purposes
 		leafNode.setValue(value);
 		leafNode.setToken(token);
+		leafNode.setLeafNode(true);
+		
+		if(this.root == null){
+			//TODO should raise an error
+		}
+		
+		//if we aren't root, add ourselves to our parent's children
+		else{
+			//set this new nodes parent
+			leafNode.setParent(this.currentNode);
+			
+			//add this node to parent's children
+			this.currentNode.addChild(leafNode);
+	
+		}
+	}
+	
+	/**
+	 * @
+	 * Add a leaf node to the tree as a child of the current node.
+	 * @param value the value of this node
+	 * @param token the token
+	 * note all leaf nodes are terminals in the grammar.
+	 */
+	public void addLeafNode(String value){
+		//create a new node
+		Node leafNode = new Node();
+		
+		//set the title of this node for printing purposes
+		leafNode.setValue(value);
 		leafNode.setLeafNode(true);
 		
 		if(this.root == null){
