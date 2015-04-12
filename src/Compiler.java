@@ -8,7 +8,7 @@ import lexnParse.Lexer;
 import lexnParse.Parser;
 import dataStructures.AbstractSyntaxTree;
 import dataStructures.Token;
-import dataStructures.SyntaxTree;
+import dataStructures.Tree;
 
 /**
  * 
@@ -48,7 +48,7 @@ public class Compiler {
 			}
 			
 			//parse the source file, grab the CST from parse
-			SyntaxTree cst = parseInput(tokenStream);
+			Tree cst = parseInput(tokenStream);
 			
 			//kill compilation if there were errors parse
 			if(cst == null){
@@ -138,21 +138,13 @@ public class Compiler {
 	 * @param tokenStream, the token stream generated from lex
 	 * @return a cst generated during parse
 	 */
-	private static SyntaxTree parseInput(ArrayList<Token> tokenStream){
+	private static Tree parseInput(ArrayList<Token> tokenStream){
 		try {
-			System.out.println("\n---> Parsing");
 			
 			Parser parser = new Parser(tokenStream);
 			
 			//parse the input
-			SyntaxTree cst = parser.parse();
-			
-			
-			System.out.println("\n---> Concrete Syntax Tree");
-			
-			//print the CST 
-			cst.print();
-			
+			Tree cst = parser.parse();		
 			
 			//return the cst if successful
 			return cst;
@@ -172,16 +164,14 @@ public class Compiler {
 	 * takes in a CST, generates an AST, and performs scope and type checking
 	 * 
 	 * @param cst the concrete syntax tree to be passed on to semantic analysis
-	 * @return AbstractSyntaxTree ast or null if something went wrong
+	 * @return AbstractSyntaxTree ast or null if something went wrong	
 	 */
-	private static AbstractSyntaxTree semanticAnalyze(SyntaxTree cst){
-		try {
+	private static AbstractSyntaxTree semanticAnalyze(Tree cst){
+		try {			
 			SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(cst);
 			
-			System.out.println("\n---> Abstract Syntax Tree");
-			
-			semanticAnalyzer.getAbstractSyntaxTree().print();
-			
+			semanticAnalyzer.analyze();
+					
 			return semanticAnalyzer.getAbstractSyntaxTree();
 		} catch (Exception e) {
 			System.out.println("Error during Semantic Analysis Phase");

@@ -1,6 +1,7 @@
 {
-
-boolean b
-b = (false == (true != ( 2 == 2) ) )
-
+	string s
+	int x
+	boolean b
+	
+	s = "hello"
 }$

@@ -6,6 +6,7 @@ import java.util.ArrayList;
  * Makes up nodes of either a CST or AST
  * 
  */
+import java.util.HashMap;
 
 public class Node {
 	
@@ -19,12 +20,20 @@ public class Node {
 	
 	private boolean isLeafNode;
 	
+	
+	//Some leaf nodes will carry Tokens from lexing phase
 	private Token token;
 	
+	//face value of the node
 	private String value;
-
 	
 	
+	/**
+	 * This really shouldnt be here.
+	 * Need to go back and modularize this better!
+	 */
+	private HashMap<String, SymbolEntry> entryData;
+		
 //--Constructors--//
 	
 	/**
@@ -33,6 +42,7 @@ public class Node {
 	public Node(){
 		this.children = new ArrayList<Node>();
 		this.parent = null;
+		this.entryData = new HashMap<String, SymbolEntry>();
 	}
 	
 	/**
@@ -41,11 +51,14 @@ public class Node {
 	public Node(Node parent){
 		this.children = new ArrayList<Node>();
 		this.parent = parent;
+		this.entryData = new HashMap<String, SymbolEntry>();
 	}
 	
 	
 //--Methods--//
 	
+
+
 	/**
 	 * returns the parent node of this node
 	 * @return Node, the parent node of this node
@@ -114,6 +127,10 @@ public class Node {
 	public ArrayList<Node> getChildren() {
 		return children;
 	}
+	
+	public void setChildren(ArrayList<Node> children){
+		this.children = children;
+	}
 
 	/**
 	 * @return the token
@@ -138,4 +155,54 @@ public class Node {
 	}
 	
 	
+	/**
+	 * 
+	 * @return the entry data for this node
+	 */
+	public HashMap<String, SymbolEntry> getEntryData(){
+		return this.entryData;
+	}
+	
+	
+	
+	
+	/**
+	 * inserts an entry for this node
+	 * 
+	 * @param idKey the key for this entry
+	 * @param value the  Symbol entry value associated with the key
+	 * @return true if insertion was successful, false otherise
+	 */
+	public boolean addSymbolEntry(String idKey, SymbolEntry value){
+		if(!hasSymbolEntry(idKey)){
+			entryData.put(idKey, value);
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @param idKey the key for the symbolEntry
+	 * @return the SymbolEntry if it exists, null otherwise.
+	 */
+	public SymbolEntry getSymbolEntry(String idKey){
+		return entryData.get(idKey);
+	}
+	
+	
+	/**
+	 * 
+	 * @param key the entry key to check
+	 * @return true if the entryData contains this key, false if it doesn't.
+	 */
+	public boolean hasSymbolEntry(String key){
+		if(entryData.get(key)==null)
+			return false;
+		else
+			return true;
+	}
 }

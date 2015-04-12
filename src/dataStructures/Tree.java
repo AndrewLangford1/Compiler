@@ -8,7 +8,7 @@ package dataStructures;
 
 
 
-public class SyntaxTree {
+public class Tree{
 	
 //--Fields--//	
 	
@@ -25,7 +25,7 @@ public class SyntaxTree {
 	/**
 	 * default constructor
 	 */
-	public SyntaxTree(){
+	public Tree(){
 		this.root = null;
 		this.currentNode = null;
 	}
@@ -35,7 +35,7 @@ public class SyntaxTree {
 	 * Constructor that takes a node
 	 * @param root  the node that will be the root of the tree
 	 */
-	public SyntaxTree(Node root){
+	public Tree(Node root){
 		this.root = root;
 		this.currentNode = root;
 		
@@ -84,7 +84,9 @@ public class SyntaxTree {
 	 * set the current node to the current node's parent
 	 */
 	public void returnToParent(){
-		this.currentNode = currentNode.getParent();
+		if(!(currentNode.getParent() == null)){
+			this.currentNode = currentNode.getParent();
+		}
 	}
 	
 	
@@ -119,6 +121,7 @@ public class SyntaxTree {
 		//current node is now new branchnode
 		this.currentNode = branchNode;
 	}
+		
 	
 	/**
 	 * Add a branch node to this tree as a child of the current node.  
@@ -182,6 +185,9 @@ public class SyntaxTree {
 	
 		}
 	}
+	
+	
+	
 	
 	/**
 	 * @

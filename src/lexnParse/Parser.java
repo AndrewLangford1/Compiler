@@ -1,7 +1,7 @@
 package lexnParse;
 import java.util.ArrayList;
 
-import dataStructures.SyntaxTree;
+import dataStructures.Tree;
 import dataStructures.Token;
 
 
@@ -18,11 +18,11 @@ public class Parser {
 	private ArrayList<Token> tokenStream;
 	
 	//the concrete syntax tree
-	private SyntaxTree cst;
+	private Tree cst;
 	
 	public Parser(ArrayList<Token> tokenStream){
 		this.tokenStream = tokenStream;
-		this.cst = new SyntaxTree();
+		cst = new Tree();
 		
 	}
 	
@@ -30,15 +30,24 @@ public class Parser {
 	//main parser function
 	//Recursive descent parser
 	//@return a concrete syntax tree or null if there was errors
-	public SyntaxTree parse(){
+	public Tree parse(){
 		try{
+			System.out.println("\n---> Parsing");
 			
 			//parse the program
 			boolean parseSuccess = parseProgram();
 			
 			//if parse succeeds, return the CST it generated during the parse
 			if(parseSuccess){
-				return this.cst;
+				
+				System.out.println("\n---> Concrete Syntax Tree");
+				
+				//print the CST 
+				cst.print();
+				
+				
+				//return the cst
+				return cst;
 			}
 			
 		} catch(Exception ex){
@@ -54,7 +63,7 @@ public class Parser {
 		try {
 			
 			//set the root node of the cst
-			this.cst.addBranchNode("Program");
+			cst.addBranchNode("Program");
 			
 			parseBlock();
 			
@@ -87,7 +96,7 @@ public class Parser {
 		
 		
 		//add a branch node
-		this.cst.addBranchNode("Block");
+		cst.addBranchNode("Block");
 		
 		
 		//match opening brace
@@ -106,7 +115,7 @@ public class Parser {
 			System.out.println("Ending Block");
 			
 			//Return to parent node of the current branch node
-			this.cst.returnToParent();
+			cst.returnToParent();
 			
 		} catch (Exception e) {
 			 
@@ -127,7 +136,7 @@ public class Parser {
 				if(hasNextToken()){
 					
 					//add a branch node to the cst
-					this.cst.addBranchNode("StatementList");
+					cst.addBranchNode("StatementList");
 					
 						//grab the next tokens type
 					 String nextToken = nextToken().getIndicator();
@@ -189,7 +198,7 @@ public class Parser {
 							
 							 //TODO check if this causes error
 							//Return to parent node of the current branch node
-							this.cst.returnToParent();
+							cst.returnToParent();
 							return;
 						 }
 					 }
@@ -198,7 +207,7 @@ public class Parser {
 					 parseStatementList();
 					 
 					//Return to parent node of the current branch node
-					 this.cst.returnToParent();
+					 cst.returnToParent();
 				}
 				else{
 					//ran out of tokens prematurely. kill parse.
@@ -222,7 +231,7 @@ public class Parser {
 		System.out.println("Parsing Statement..");
 		try {
 			//add a branch node to the cst
-			this.cst.addBranchNode("Statement");
+			cst.addBranchNode("Statement");
 			if(hasNextToken()){
 				String nextToken = nextToken().getIndicator();
 				switch(nextToken){
@@ -294,7 +303,7 @@ public class Parser {
 				System.out.println("Ending Statement");
 				
 				//Return to parent node of the current branch node
-				this.cst.returnToParent();
+				cst.returnToParent();
 			}
 			else{
 				//ran out of tokens prematurely. kill parse.
@@ -314,7 +323,7 @@ public class Parser {
 	private void parsePrintStatement(){
 		try {
 			//add a branch node to the cst
-			this.cst.addBranchNode("PrintStatement");
+			cst.addBranchNode("PrintStatement");
 			
 			System.out.println("Expecting <print>");
 			match("print");
@@ -332,7 +341,7 @@ public class Parser {
 			
 			
 			//Return to parent node of the current branch node
-			this.cst.returnToParent();
+			cst.returnToParent();
 			
 		} catch (Exception e) {
 			 
@@ -347,7 +356,7 @@ public class Parser {
 			
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("AssignmentStatement");
+			cst.addBranchNode("AssignmentStatement");
 			
 			//match
 			parseId();
@@ -361,7 +370,7 @@ public class Parser {
 			
 			
 			//Return to parent node of the current branch node
-			this.cst.returnToParent();
+			cst.returnToParent();
 		
 		} catch (Exception e) {
 			 
@@ -377,25 +386,25 @@ public class Parser {
 			
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("VarDecl");
+			cst.addBranchNode("VarDecl");
 			
 			System.out.println("Expecting <type>");
 		
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("type");
+			cst.addBranchNode("type");
 			
 			//match a type for this variable
 			match("int|string|boolean");
 			
 			//Return to parent node of the current branch node
-			this.cst.returnToParent();
+			cst.returnToParent();
 			
 			//parse the ID for this vardecl
 			parseId();
 			
 			//Return to parent node of the current branch node
-			this.cst.returnToParent();
+			cst.returnToParent();
 			
 		} catch (Exception e) {
 			 
@@ -409,7 +418,7 @@ public class Parser {
 		try {
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("WhileStatement");
+			cst.addBranchNode("WhileStatement");
 			
 			System.out.println("Expecting <while>");
 			//match while keyword
@@ -422,7 +431,7 @@ public class Parser {
 			parseBlock();
 			
 			//Return to parent node of the current branch node
-			this.cst.returnToParent();
+			cst.returnToParent();
 			
 		} catch (Exception e) {
 			 
@@ -436,7 +445,7 @@ public class Parser {
 		try {
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("IfStatement");
+			cst.addBranchNode("IfStatement");
 			
 			
 			System.out.println("Expecting <if>");
@@ -453,7 +462,7 @@ public class Parser {
 			
 			
 			//Return to parent node of the current branch node
-			this.cst.returnToParent();
+			cst.returnToParent();
 			
 		} catch (Exception e) {
 			 
@@ -467,7 +476,7 @@ public class Parser {
 		try {
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("Expr");
+			cst.addBranchNode("Expr");
 			
 			
 			if(hasNextToken()){
@@ -527,7 +536,7 @@ public class Parser {
 					
 					
 					//Return to parent node of the current branch node
-					this.cst.returnToParent();
+					cst.returnToParent();
 			}
 			else{
 				//ran out of tokens prematurely. kill parse.
@@ -549,14 +558,14 @@ public class Parser {
 		try {
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("IntExpr");
+			cst.addBranchNode("IntExpr");
 			
 			
 		
 			System.out.println("Expecting <digit>");
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("digit");
+			cst.addBranchNode("digit");
 			
 			
 			//match a digit
@@ -564,7 +573,7 @@ public class Parser {
 			
 			
 			//Return to parent node of the current branch node
-			this.cst.returnToParent();
+			cst.returnToParent();
 			
 			if(hasNextToken()){
 			
@@ -576,14 +585,14 @@ public class Parser {
 				else{
 					
 					//Return to parent node of the current branch node
-					this.cst.returnToParent();
+					cst.returnToParent();
 					
 					return;
 				}
 				
 				
 				//Return to parent node of the current branch node
-				this.cst.returnToParent();
+				cst.returnToParent();
 			}
 			else{
 				//ran out of tokens prematurely. kill parse.
@@ -603,7 +612,7 @@ public class Parser {
 		try {
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("StringExpr");
+			cst.addBranchNode("StringExpr");
 			
 			System.out.println("Expecting <quote>");
 		//match double quotes
@@ -618,7 +627,7 @@ public class Parser {
 			
 			
 			//Return to parent node of the current branch node
-			this.cst.returnToParent();
+			cst.returnToParent();
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -632,7 +641,7 @@ public class Parser {
 		try {
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("BooleanExpr");
+			cst.addBranchNode("BooleanExpr");
 			
 			if(hasNextToken()){
 				//grab next token
@@ -641,8 +650,11 @@ public class Parser {
 				System.out.println("matching" + nextToken);
 				//match boolean values
 				
+				
 				if(nextToken.matches("false|true")){
-					match("false|true");
+					cst.addBranchNode("boolval");
+						match("false|true");
+					cst.returnToParent();
 				}
 				else{
 				//match (Expr boolop Expr)
@@ -656,7 +668,7 @@ public class Parser {
 				}
 				
 				//Return to parent node of the current branch node
-				this.cst.returnToParent();
+				cst.returnToParent();
 			}	
 			else{
 				//ran out of tokens prematurely. kill parse.
@@ -676,11 +688,11 @@ public class Parser {
 		try {
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("Id");
+			cst.addBranchNode("Id");
 			
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("char");
+			cst.addBranchNode("char");
 			
 			
 			System.out.println("Expecting <id>");
@@ -690,11 +702,11 @@ public class Parser {
 			match("[a-z]");
 			
 			//Return to parent node of the current branch node
-			this.cst.returnToParent();
+			cst.returnToParent();
 			
 			
 			//Return to parent node of the current branch node
-			this.cst.returnToParent();
+			cst.returnToParent();
 			
 		} catch (Exception e) {
 			 
@@ -710,7 +722,7 @@ public class Parser {
 			
 			
 			//add a branch node to the cst
-			this.cst.addBranchNode("CharList");
+			cst.addBranchNode("CharList");
 			
 			if(hasNextToken()){
 				//grab next token
@@ -722,14 +734,14 @@ public class Parser {
 					System.out.println("Expecting <char> or <space>");
 					
 					//add a branch node to the cst
-					this.cst.addBranchNode("char");
+					cst.addBranchNode("char");
 					
 					//match char or whitespace
 					match("[a-z]|[ ]");
 					
 					
 					//Return to parent node of the current branch node
-					this.cst.returnToParent();
+					cst.returnToParent();
 					
 					//continue parsing the charlist....
 					parseCharlist();
@@ -739,14 +751,14 @@ public class Parser {
 				if(nextToken.matches("\"")){
 					
 					//Return to parent node of the current branch node
-						this.cst.returnToParent();
+						cst.returnToParent();
 						
 						return;
 				}
 				else{
 					//epcelon production
 					//Return to parent node of the current branch node
-					this.cst.returnToParent();
+					cst.returnToParent();
 					return;
 				}
 			}
@@ -768,13 +780,13 @@ public class Parser {
 	private void parseBooleanOperation(){
 		try {
 			//add a branch node to the cst
-			this.cst.addBranchNode("boolop");
+			cst.addBranchNode("boolop");
 			
 			//match either boolop equals? or doesnt equal?
 			System.out.println("Expecting <booleanOp>");
 			match("==|!=");
 			
-			this.cst.returnToParent();
+			cst.returnToParent();
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -785,12 +797,12 @@ public class Parser {
 	private void parseIntegerOperation(){
 		try {
 			//add a branch node to the cst
-			this.cst.addBranchNode("intop");
+			cst.addBranchNode("intop");
 			
 			//match the integer operation
 			System.out.println("Expecting <+>");
 			match("\\+");
-			this.cst.returnToParent();
+			cst.returnToParent();
 		} catch (Exception e) {
 			 
 			System.out.println(e);
@@ -818,7 +830,7 @@ public class Parser {
 					System.out.println("Got " + tokenVal);
 					
 					//any matches are leaf nodes for the cst
-					this.cst.addLeafNode(nextToken.toString(), nextToken);
+					cst.addLeafNode(nextToken.toString(), nextToken);
 					
 					//consume the token
 					consumeToken();

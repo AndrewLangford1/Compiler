@@ -498,13 +498,10 @@ public class Lexer {
 		}
 	}
 	
-/////auto generated////
+
 	public ArrayList<Token> getTokenStream() {
 		return tokenStream;
 	}
-
-
-
 
 
 	public ArrayList<String> getErrorList() {

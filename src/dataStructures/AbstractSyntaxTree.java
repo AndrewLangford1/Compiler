@@ -11,12 +11,12 @@ import java.util.ArrayList;
  *
  */
 
-public class AbstractSyntaxTree extends SyntaxTree {
+public class AbstractSyntaxTree extends Tree {
 	
 //--Fields--//
 
 	//the CST we'll use to generate the AST
-	SyntaxTree concreteSyntaxTree;
+	Tree concreteSyntaxTree;
 	
 	
 	
@@ -25,7 +25,7 @@ public class AbstractSyntaxTree extends SyntaxTree {
 	 * @param concreteSyntaxTree the CST to convert into an AST
 	 * 
 	 */
-	public AbstractSyntaxTree(SyntaxTree concreteSyntaxTree){
+	public AbstractSyntaxTree(Tree concreteSyntaxTree){
 		super();
 		this.concreteSyntaxTree = concreteSyntaxTree;
 		this.cstToAst(concreteSyntaxTree.getRoot());
@@ -310,8 +310,9 @@ public class AbstractSyntaxTree extends SyntaxTree {
 	 */
 	private String handleStringExpr(Node stringExprNode){
 		try {
-			String charList = charlistBuilder(stringExprNode, "");
-			return charList;
+			
+			return  charlistBuilder(stringExprNode, "");
+			
 		} catch (Exception e) {
 			System.out.println("Error handling String Expression");
 			e.printStackTrace();
@@ -328,20 +329,23 @@ public class AbstractSyntaxTree extends SyntaxTree {
 	 * @param charList the current charlist we are building.
 	 */
 	private String charlistBuilder(Node currentNode, String charList){
-		if(currentNode.isLeafNode()){
-			Token currentToken = currentNode.getToken();
-			if(currentToken.getIndicator() == "DOUBLEQUOTE")
-				charList+= "\"";
-			else
-				charList += currentToken.getValue();
-		}
-		if(currentNode.getChildren().isEmpty()){
+		
+		//if the node is a leaf node from the CST, we want it in the string
+		if(currentNode.isLeafNode())
+			charList+= currentNode.getToken().getValue();
+		
+		
+		//base case
+		//just return the charlist since theres no children
+		if(currentNode.getChildren().isEmpty())
 			return charList;
-		}
+		
+		
+		//recursive part
+		//grab leaf nodes from all children
 		else{
-			for(Node x : currentNode.getChildren()){
+			for(Node x : currentNode.getChildren())
 				charList = charlistBuilder(x, charList);
-			}
 		}
 		
 		return charList;
