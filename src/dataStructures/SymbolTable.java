@@ -21,7 +21,7 @@ public class SymbolTable extends Tree{
 	
 	private int scopeCounter;
 	
-	private HashMap<Integer, Node> selfAsHash;
+	private HashMap<Integer, Node> symbolTableAsHash;
 	
 	private ArrayList<String> errorMessages;
 	
@@ -35,7 +35,7 @@ public class SymbolTable extends Tree{
 		this.ast = ast;
 		this.scopeCounter = 0;
 		this.errorMessages = new ArrayList<String>();
-		this.selfAsHash = new HashMap<Integer, Node>();
+		this.symbolTableAsHash = new HashMap<Integer, Node>();
 		this.warningMessages = new ArrayList<String>();
 	}
 	
@@ -45,6 +45,7 @@ public class SymbolTable extends Tree{
 		//generate the symbol table
 		semanticAnalyze(ast.getRoot());
 		symbolTableToHash();
+		findUnused(this.symbolTableAsHash);
 		
 	}
 	
@@ -272,6 +273,13 @@ public class SymbolTable extends Tree{
 	private void handleAssignmentStatement(Node assignmentNode){
 		System.out.println("Evaluating Assignment Statement");
 		//analyze the id
+		
+		
+		Node idNode =  assignmentNode.getChildren().get(0);
+		SymbolEntry entry = getIdentifierData(idNode.getValue());
+		if(entry != null)
+			entry.setInitialized(true);
+		
 		String idType = semanticAnalyze(assignmentNode.getChildren().get(0));
 		
 		
@@ -282,14 +290,9 @@ public class SymbolTable extends Tree{
 			 
 			 //if the types don't match, raise an error
 			 if(!idType.matches(exprType)){
-				 assignmentError(idType, exprType, assignmentNode.getToken().getLineNum()); 
-			 }
-			 
-			 //if the types match, update the symbol table entry
-			 else{
-				Node idNode =  assignmentNode.getChildren().get(0);
-				SymbolEntry entry = getIdentifierData(idNode.getValue());
-				entry.setInitialized(true);
+				if(entry != null)
+					entry.setInitialized(false);
+				assignmentError(idType, exprType, assignmentNode.getToken().getLineNum()); 
 			 }
 		 }	
 	}
@@ -324,7 +327,7 @@ public class SymbolTable extends Tree{
 		//analyze the right operand
 		String rightOperand = semanticAnalyze(boolopNode.getChildren().get(1));
 		
-		if(rightOperand != null){
+		if(rightOperand != null && leftOperand !=null){
 			//see if the data types match
 			if(!leftOperand.matches(rightOperand)){
 				this.booleanOpError(leftOperand, rightOperand, boolopNode.getToken().getLineNum());
@@ -425,7 +428,7 @@ public class SymbolTable extends Tree{
 	
 	
 	private void intTopError(String expected, String received, int lineNum){
-		String error = "ERROR: [Line : " + lineNum + "] Expected a " + expected + " type, but received a " + received + " type. \n You cannot add these....";
+		String error = "ERROR: [Line : " + lineNum + "] Incompatibile types. Expected: " + expected + " Received:  " + received;
 		this.errorMessages.add(error);
 
 	}
@@ -443,6 +446,19 @@ public class SymbolTable extends Tree{
 	private void uninitializedWarning(String identifier, int lineNum){
 		String warning = "WARNING: [Line : " + lineNum + "] " + "identifier " + identifier + " is used but not initialized";
 		this.warningMessages.add(warning);
+	}
+	
+	private void findUnused(HashMap<Integer, Node> hashTable){
+		for(Integer x : hashTable.keySet()){
+			Node scopeNode = hashTable.get(x);
+			for(String y : scopeNode.getEntryData().keySet()){
+				SymbolEntry entry = scopeNode.getEntryData().get(y);
+				if(!entry.isUsed()){
+					String warning = "WARNING: [Line : " + entry.getLineDeclared() + "] identifier " + y + " is never used.";
+					this.warningMessages.add(warning);
+				}
+			}
+		}
 	}
 	
 		
@@ -473,7 +489,7 @@ public class SymbolTable extends Tree{
 		//build the hash
 		addHashEntry(this.getRoot(), symbolTableAsHash);
 		
-		this.selfAsHash = symbolTableAsHash;
+		this.symbolTableAsHash = symbolTableAsHash;
 	}
 	
 	/**
@@ -504,7 +520,7 @@ public class SymbolTable extends Tree{
 	 * Simply calls printHashTable
 	 */
 	public void printAsHash(){
-		printHashTable(this.selfAsHash);
+		printHashTable(this.symbolTableAsHash);
 	}
 	
 	
@@ -530,14 +546,14 @@ public class SymbolTable extends Tree{
 	
 	
 	/**
-	 * @return the selfAsHash
+	 * @return the symbolTableAsHash
 	 */
 	public HashMap<Integer, Node> getSelfAsHash() {
-		return selfAsHash;
+		return symbolTableAsHash;
 	}
 	
 	public Node getSymbolNode(Integer key){
-		return selfAsHash.get(key);
+		return symbolTableAsHash.get(key);
 	}
 
 	/**

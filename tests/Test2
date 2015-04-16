@@ -1,0 +1,53 @@
+{
+ int x
+ x = 4
+ 
+ string s
+ s = "this suit"
+ 
+ boolean b
+ b = false
+ 
+ 	{ 
+ 
+	  int y
+	  y = 5
+	  
+	  string t
+	  t = "is black"
+	  
+	  boolean c
+	  c = false
+  
+  
+  		{
+		  int z
+		  z = 6
+		  
+		  string u
+		  u = " not "
+		  
+		  boolean d
+		  d = true 
+		  
+			  {
+			  
+			  	z = 1 + y
+			  	y = 2 + z
+			  	
+			  	u = t
+			  	t = s
+			  	
+			  	d = (true == c)
+			  	
+			  	c = (false != b)
+			  
+			  
+			  
+			  
+			  }
+  		}
+  		
+  	}
+ 
+}$

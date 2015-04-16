@@ -1,11 +1,8 @@
 package semanticAnalysis;
 
-import java.util.ArrayList;
 
 import dataStructures.AbstractSyntaxTree;
-import dataStructures.Node;
-import dataStructures.SymbolTable;
-import dataStructures.Token;
+import dataStructures.SymbolTable;	
 import dataStructures.Tree;
 
 
@@ -21,7 +18,6 @@ public class SemanticAnalyzer {
 //--Fields--//
 	private AbstractSyntaxTree abstractSyntaxTree;
 	private SymbolTable symbolTable;	
-	private ArrayList<String> errorMessages;
 		
 //-Constructors--//
 		
@@ -34,11 +30,10 @@ public class SemanticAnalyzer {
 		System.out.println("\n---> Beginning Semantic Analysis");
 		this.abstractSyntaxTree = new AbstractSyntaxTree(concreteSyntaxTree);
 		this.symbolTable = generateSymbolTable();
-		this.errorMessages = new ArrayList<String>();
-	}
+	}	
 	
 	
-	/**
+	/**	
 	 * 
 	 * @return an AST if semantic analysis is successful, null otherwise.
 	 */
@@ -55,10 +50,10 @@ public class SemanticAnalyzer {
 			//print as a Tree
 			System.out.println("\n---> Symbol Table Tree");
 			symbolTable.printAsTree();
-				
+					
 			//print as a HashTable
 			System.out.println("\n---> Symbol Table Hash");
-			symbolTable.printAsHash();
+			symbolTable.printAsHash();				
 			
 			//perform scope and type checking
 	
@@ -69,7 +64,7 @@ public class SemanticAnalyzer {
 				
 			return abstractSyntaxTree;
 		}
-			
+					
 			//scope and type checking failed, so print the error messages and return null to kill compilation.
 			else{	
 				//print warning messages if any

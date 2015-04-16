@@ -1,0 +1,21 @@
+{
+	int x
+	boolean b
+	string s
+
+	while(true == (b == i)){
+		
+		string k
+		k = "help"
+		print(1 + 2 +3 + 4 + 5 + "hello")
+		print(1 + 2 +3 + 4 + 5 + true)
+		print(1 + 2 +3 + 4 + 5 + g)
+		print(1 +4 + b)
+		print(1 + 5 + s)
+	}
+	
+	if(k == "help"){
+		print(k)
+		b = (x == true)
+	}
+}$
