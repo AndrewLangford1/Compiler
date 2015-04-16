@@ -96,7 +96,7 @@ public class AbstractSyntaxTree extends Tree {
 					cstToAst(nodeChildren.get(2));
 					
 					returnToParent();
-				}
+				}	
 				
 				break;
 				

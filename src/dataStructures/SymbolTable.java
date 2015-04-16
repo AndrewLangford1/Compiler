@@ -10,7 +10,7 @@ import java.util.Map.Entry;
  * @author Andrew
  *
  *
- *Class to handle the construction, structure, and access of the Symbol Table.
+ *Class to handle the construction, structure, and access of the Symbol Table, and performs all heavy lifting for Semantic Analysis
  */
 
 public class SymbolTable extends Tree{
@@ -25,6 +25,8 @@ public class SymbolTable extends Tree{
 	
 	private ArrayList<String> errorMessages;
 	
+	private ArrayList<String> warningMessages;
+	
 	
 
 //--Constructors--//	
@@ -34,6 +36,7 @@ public class SymbolTable extends Tree{
 		this.scopeCounter = 0;
 		this.errorMessages = new ArrayList<String>();
 		this.selfAsHash = new HashMap<Integer, Node>();
+		this.warningMessages = new ArrayList<String>();
 	}
 	
 //--Methods --//
@@ -41,7 +44,7 @@ public class SymbolTable extends Tree{
 	public void init(){
 		//generate the symbol table
 		semanticAnalyze(ast.getRoot());
-		selfToHash();
+		symbolTableToHash();
 		
 	}
 	
@@ -52,6 +55,10 @@ public class SymbolTable extends Tree{
 	 */
 	public ArrayList<String> getErrorMessages() {
 		return errorMessages;
+	}
+	
+	public ArrayList<String> getWarningMessages(){
+		return warningMessages;
 	}
 
 	/**
@@ -158,6 +165,7 @@ public class SymbolTable extends Tree{
 	 */
 	
 	private void handleBlock(Node blockNode){
+		System.out.println("Scope and Type Checking Block");
 		//increase the scope by one.
 		scopeCounter += 1;
 		System.out.println("Entering Scope " + scopeCounter);
@@ -234,6 +242,7 @@ public class SymbolTable extends Tree{
 	 * checks the comparison and then analyzes the blocks statements
 	 */
 	private void handleWhileStatement(Node whileNode){
+		System.out.println("Scope and Type Checking While Statement");
 		//analyze condition
 		semanticAnalyze(whileNode.getChildren().get(0));
 		
@@ -242,6 +251,7 @@ public class SymbolTable extends Tree{
 	}
 	
 	private void handleIfStatement(Node ifNode){
+		System.out.println("Scope and Type Checking If Statement");
 		//analyze condition
 		semanticAnalyze(ifNode.getChildren().get(0));
 				
@@ -260,6 +270,7 @@ public class SymbolTable extends Tree{
 	 * @param assignmentNode
 	 */
 	private void handleAssignmentStatement(Node assignmentNode){
+		System.out.println("Evaluating Assignment Statement");
 		//analyze the id
 		String idType = semanticAnalyze(assignmentNode.getChildren().get(0));
 		
@@ -267,7 +278,7 @@ public class SymbolTable extends Tree{
 		//analyze the Expr
 		 String exprType = semanticAnalyze(assignmentNode.getChildren().get(1));
 		 
-		 if(exprType != null){
+		 if(exprType != null && idType != null){
 			 
 			 //if the types don't match, raise an error
 			 if(!idType.matches(exprType)){
@@ -290,12 +301,14 @@ public class SymbolTable extends Tree{
 		//analyze the right operand
 		String exprNode = semanticAnalyze(additionNode.getChildren().get(1));
 		
-		if(exprNode != null){
+		if(exprNode != null && leftNode != null){
 			//see if the data types match
 			if(!leftNode.matches(exprNode)){
 				intTopError(leftNode, exprNode, additionNode.getToken().getLineNum());
 				
 			}
+			
+			System.out.println("Checking type addibility of " + leftNode + " with " + exprNode);
 			
 		}
 		
@@ -315,7 +328,9 @@ public class SymbolTable extends Tree{
 			//see if the data types match
 			if(!leftOperand.matches(rightOperand)){
 				this.booleanOpError(leftOperand, rightOperand, boolopNode.getToken().getLineNum());
-			}	
+			}
+			
+			System.out.println("Checking type comparibility of " + leftOperand + " with " + rightOperand);
 		}
 		
 		return "boolean";
@@ -323,11 +338,19 @@ public class SymbolTable extends Tree{
 	
 	private String handleIdentifier(Node idNode, Token idToken){
 		String idType =  handleUndeclaredIdentifiers(idNode.getValue(), idToken);
-		return idType;
-		
+		if(idType != null){
+			SymbolEntry entry = getIdentifierData(idNode.getValue());
+			entry.setUsed(true);
+			
+			//raise a warning
+			if(!entry.isInitialized()){
+				this.uninitializedWarning(idNode.getValue(), idToken.getLineNum());
+				
+				
+			}
+		}
+		return idType;	
 	}
-	
-
 	
 	/**
 	 * Checks to see if the ID is declared, and returns its type
@@ -336,6 +359,9 @@ public class SymbolTable extends Tree{
 	 * @return the type of the node.
 	 */
 	private String handleUndeclaredIdentifiers(String identifier, Token idToken){
+		
+		System.out.println("Seeing if ID " + identifier + " exists in scope " + this.scopeCounter );
+		
 		if(getCurrent().hasSymbolEntry(identifier)){
 			//we found the id, so return its type
 			SymbolEntry entry = getCurrent().getSymbolEntry(identifier);
@@ -344,9 +370,10 @@ public class SymbolTable extends Tree{
 		else{
 			Node tempCurrent = getCurrent();
 			while(tempCurrent.hasParent()){
+				System.out.println("checking parent scopes...." );
 				tempCurrent = tempCurrent.getParent();
 				if(tempCurrent.hasSymbolEntry(identifier)){
-					SymbolEntry entry = getCurrent().getSymbolEntry(identifier);
+					SymbolEntry entry = tempCurrent.getSymbolEntry(identifier);
 					return entry.getType();
 				}	
 			}
@@ -384,6 +411,13 @@ public class SymbolTable extends Tree{
 	}
 	
 	
+	
+	/**
+	 * 
+	 * ERROR MESSAGE GENERATORS
+	 * 
+	 */
+	
 	private void buildUndeclaredIdentifierError(Token token){
 		String error = "ERROR: [Line : " + token.getLineNum() + "] undeclared identifier <" + token.getValue() + ">";
 		this.errorMessages.add(error);
@@ -406,6 +440,11 @@ public class SymbolTable extends Tree{
 		this.errorMessages.add(error);
 	}
 	
+	private void uninitializedWarning(String identifier, int lineNum){
+		String warning = "WARNING: [Line : " + lineNum + "] " + "identifier " + identifier + " is used but not initialized";
+		this.warningMessages.add(warning);
+	}
+	
 		
 	
 	/**
@@ -417,11 +456,17 @@ public class SymbolTable extends Tree{
 		}
 	}
 	
+	public void printWarningMessages(){
+		for(String s : warningMessages){
+			System.out.println(s);
+		}
+	}
+	
 	/**
 	 * Turns the Tree Structure into a HashTable
 	 * 
 	 */
-	private void selfToHash(){
+	private void symbolTableToHash(){
 		//make a blank hash
 		HashMap<Integer, Node> symbolTableAsHash = new HashMap<Integer, Node>();
 		
