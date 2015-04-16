@@ -68,6 +68,8 @@ public class SymbolTable extends Tree{
 	 * 
 	 */
 	private String semanticAnalyze(Node currentAstNode){
+		endSemanticAnalysis();
+		
 		
 		switch(currentAstNode.getValue()){
 			case("Block"):{
@@ -277,8 +279,10 @@ public class SymbolTable extends Tree{
 		
 		Node idNode =  assignmentNode.getChildren().get(0);
 		SymbolEntry entry = getIdentifierData(idNode.getValue());
-		if(entry != null)
+		if(entry != null){
+			System.out.println("initializing "+ idNode.getValue());
 			entry.setInitialized(true);
+		}
 		
 		String idType = semanticAnalyze(assignmentNode.getChildren().get(0));
 		
@@ -290,9 +294,16 @@ public class SymbolTable extends Tree{
 			 
 			 //if the types don't match, raise an error
 			 if(!idType.matches(exprType)){
-				if(entry != null)
+				if(entry != null){
 					entry.setInitialized(false);
+				}
 				assignmentError(idType, exprType, assignmentNode.getToken().getLineNum()); 
+			 }
+			 else{
+					if(entry != null){
+						System.out.println("initializing "+ idNode.getValue());
+						entry.setInitialized(true);
+					}
 			 }
 		 }	
 	}
@@ -423,24 +434,25 @@ public class SymbolTable extends Tree{
 	
 	private void buildUndeclaredIdentifierError(Token token){
 		String error = "ERROR: [Line : " + token.getLineNum() + "] undeclared identifier <" + token.getValue() + ">";
-		this.errorMessages.add(error);
+		errorMessages.add(error);
 	}
 	
 	
 	private void intTopError(String expected, String received, int lineNum){
 		String error = "ERROR: [Line : " + lineNum + "] Incompatibile types. Expected: " + expected + " Received:  " + received;
-		this.errorMessages.add(error);
+		errorMessages.add(error);
+		
 
 	}
 	
 	private void booleanOpError(String expected, String received, int lineNum){
 		String error = "ERROR: [Line : " + lineNum + "] Cannot compare " + expected + " with " + received;
-		this.errorMessages.add(error);
+		errorMessages.add(error);
 	}
 	
 	private void assignmentError(String expected, String received, int lineNum){
 		String error = "ERROR: [Line : " + lineNum + "] " + "Cannot assign " + received + " to id of type " + expected;
-		this.errorMessages.add(error);
+		errorMessages.add(error);
 	}
 	
 	private void uninitializedWarning(String identifier, int lineNum){
@@ -598,6 +610,19 @@ public class SymbolTable extends Tree{
 		} catch (Exception e) {
 			System.out.println("Error printing tree at level " + level + " at node " + node.getValue());
 			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * If we find errors, kill compilation.
+	 */
+	private void endSemanticAnalysis(){
+		if(!errorMessages.isEmpty()){
+			System.out.println("\n---> ERRORS");
+			this.printErrorMessages();
+			System.out.println("Ending Compilation.....");
+			System.exit(0);
 		}
 	}
 }

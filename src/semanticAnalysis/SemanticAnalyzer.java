@@ -2,11 +2,11 @@ package semanticAnalysis;
 
 
 import dataStructures.AbstractSyntaxTree;
-import dataStructures.SymbolTable;	
+import dataStructures.SymbolTable;		
 import dataStructures.Tree;
 
 
-	
+			
 /**
  * Class that basically just calls the symbol table class, which does all the heavy lifting for semantic analysis
  * @author Andrew
@@ -20,7 +20,7 @@ public class SemanticAnalyzer {
 	private SymbolTable symbolTable;	
 		
 //-Constructors--//
-		
+			
 	/**
 	 * Default constructor
 	 * @param concreteSyntaxTree the cst generated during parse
@@ -75,7 +75,7 @@ public class SemanticAnalyzer {
 				System.out.println("\n---> ERRORS");
 				symbolTable.printErrorMessages();
 				System.out.println("Semantic Analysis failed.....");
-				return null;
+				return null;	
 			}
 	}	
 		

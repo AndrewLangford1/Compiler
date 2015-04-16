@@ -1,0 +1,24 @@
+{
+	int s
+	
+	s = 4
+	
+	boolean b
+	
+	b = false
+	
+	string k
+	k = "hi"
+	
+	k = s
+	
+	s = b
+	
+	b= s
+	
+	k = b
+	
+	s = k
+
+
+}$
