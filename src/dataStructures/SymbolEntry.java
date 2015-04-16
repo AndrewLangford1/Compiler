@@ -120,6 +120,20 @@ public class SymbolEntry {
 	}
 
 	/**
+	 * @return the isInitialized
+	 */
+	public boolean isInitialized() {
+		return isInitialized;
+	}
+
+	/**
+	 * @param isInitialized the isInitialized to set
+	 */
+	public void setInitialized(boolean isInitialized) {
+		this.isInitialized = isInitialized;
+	}
+
+	/**
 	 * Basically just attempts to print out the entry in a nice manner.
 	 * 
 	 */

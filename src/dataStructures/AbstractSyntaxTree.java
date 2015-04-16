@@ -194,7 +194,7 @@ public class AbstractSyntaxTree extends Tree {
 					
 					Token stringToken = new Token();
 					
-					stringToken.setIndicator("string");
+					stringToken.setIndicator("STRING");
 					
 					addLeafNode(leafValue, stringToken);
 				}

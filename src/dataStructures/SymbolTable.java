@@ -59,7 +59,7 @@ public class SymbolTable extends Tree{
 	 * @param currentAstNode the current node we are visiting on the AST
 	 * 
 	 */
-	private void semanticAnalyze(Node currentAstNode){
+	private Node semanticAnalyze(Node currentAstNode){
 		
 		switch(currentAstNode.getValue()){
 			case("Block"):{
@@ -108,64 +108,58 @@ public class SymbolTable extends Tree{
 			break;
 			
 			
-			case("+") :{
-				System.out.println("Scope and Type Checking Addition  Operation");
-				handleAdditionOperation(currentAstNode);
-				
-				
-			}
-			
-			break;
-			
-			case("!=") :{
-				System.out.println("Scope and Type Checking Boolean != Operation");
-				handleBoolOperation(currentAstNode);
-				
-				
-			}
-			
-			break;
-			
-			case("==") :{
-				System.out.println("Scope and Type Checking == Operation");
-				handleBoolOperation(currentAstNode);
-				
-				
-			}
-			
-			break;
-			
-			//If we get down here, have to do some matching thanks to my shitty AST design.
+			/**
+			 * If we get down here, have to do some matching thanks to my shitty AST design.
+			 * this default case needs alot of work
+			 */
 			default :{
 				
 				if(currentAstNode.getValue().matches("[a-z]")){
 					handleIdentifier(currentAstNode, currentAstNode.getToken());
+					return currentAstNode;
 				}
 				
 				if(currentAstNode.getValue().matches("int|bool|string")){
-					handleType(currentAstNode);
+					return currentAstNode;
 					
 					
 				}
 				
 				if(currentAstNode.getValue().matches("[0-9]")){
-					handleDigit(currentAstNode);
-					
-					
+					return currentAstNode;	
 				}
 				
 				if(currentAstNode.getValue().matches("true|false")){
-					handleBoolVal(currentAstNode);
+					return currentAstNode;
 					
 					
 				}
 				
 				if(currentAstNode.getValue().matches("\"([^\"]*)\"")){
-					handleCharList(currentAstNode);
-					
+					return currentAstNode;
 				}
+				
+				if(currentAstNode.getValue().matches("\\+")){
+					System.out.println("Scope and Type Checking Addition  Operation");
+					return handleAdditionOperation(currentAstNode);
+				}
+		
+			
+				if(currentAstNode.getValue().matches("!=")){
+					System.out.println("Scope and Type Checking Boolean != Operation");
+					handleBoolOperation(currentAstNode);
+				}
+		
+	
+				if(currentAstNode.getValue().matches("==")){
+					System.out.println("Scope and Type Checking == Operation");
+					handleBoolOperation(currentAstNode);
+				}
+				
+				return null;
 			}
 		}
+		return null;
 	}
 	
 	/**
@@ -264,22 +258,76 @@ public class SymbolTable extends Tree{
 	}
 	
 	private void handleAssignmentStatement(Node assignmentNode){
-		//analyze the type
-		semanticAnalyze(assignmentNode.getChildren().get(0));
-		
-		
 		//analyze the id
-		semanticAnalyze(assignmentNode.getChildren().get(1));
-
+		Node idNode = semanticAnalyze(assignmentNode.getChildren().get(0));
+		
+		
+		//analyze the Expr
+		Node resultingTypeNode = semanticAnalyze(assignmentNode.getChildren().get(1));
+					
 	}
 	
-	private void handleAdditionOperation(Node additionNode){
+	private Node handleAdditionOperation(Node additionNode){
 		//analyze the left operand
-		semanticAnalyze(additionNode.getChildren().get(0));
-		
-		
+		Node digitNode = semanticAnalyze(additionNode.getChildren().get(0));
+	
 		//analyze the right operand
-		semanticAnalyze(additionNode.getChildren().get(1));
+		Node exprNode = semanticAnalyze(additionNode.getChildren().get(1));
+		
+		if(exprNode != null){
+			switch(exprNode.getToken().getIndicator()){
+			
+				case("ID") :{
+					SymbolEntry entry = getIdentifierData(exprNode.getValue());
+					if(entry != null){
+						if(entry.getType().matches("int")){
+
+						//build an error
+						this.incompatibleTypeError(entry.getType() + " " + exprNode.getToken().getValue(), exprNode.getToken(), "int");
+						
+						}
+					}
+					
+					//else do nothing
+				}
+				
+				break;
+				
+				case("DIGIT") :{
+					//nothin
+				} 
+				
+				break;
+				
+				case("STRING"):{
+					
+					//build error
+					this.incompatibleTypeError(exprNode.getToken(), "int");
+					
+					
+				}
+				
+				break;
+				
+				case("BOOLEANVALUE"):{
+					
+					//build error
+					this.incompatibleTypeError(exprNode.getToken(), "int");
+					
+				}
+				
+				break;
+			
+				default :{
+				
+				}
+			
+			}
+			
+			
+		}
+		
+		return digitNode;
 	}
 	
 	private void handleBoolOperation(Node boolopNode){
@@ -299,33 +347,9 @@ public class SymbolTable extends Tree{
 		
 	}
 	
-	private void handleType(Node typeNode){
-		
-		
-	}
-	
-	private void handleBoolVal(Node boolValNode){
-		
-		
-	}
-	
-	private void handleDigit(Node digitNode){
-		
-		
-		
-	}
-	
-	private void handleCharList(Node charListNode){
-		
-		
-	}
+
 	
 	
-	
-	/**
-	 * handles whether or not an ID is visible in the scope it was called in
-	 * @param identifier the char variable of the identifier
-	 */
 	private void handleUndeclaredIdentifiers(String identifier, Token idToken){
 		if(getCurrent().hasSymbolEntry(identifier)){
 			//we found the id, so need to do anything
@@ -349,11 +373,46 @@ public class SymbolTable extends Tree{
 	}
 	
 	
+	/**
+	 * 
+	 * @param identifier
+	 * @return the symbol entry associated with this identifier, or null if it wasnt found
+	 */
+	private SymbolEntry getIdentifierData(String identifier){
+		if(getCurrent().hasSymbolEntry(identifier)){
+			//we found the id, so need to do anything
+			return getCurrent().getSymbolEntry(identifier);
+			
+			
+		}
+		else{
+			Node tempCurrent = getCurrent();
+			while(tempCurrent.hasParent()){
+				tempCurrent = tempCurrent.getParent();
+				if(tempCurrent.hasSymbolEntry(identifier)){
+					//we found the id, so need to do anything
+					return tempCurrent.getSymbolEntry(identifier);
+				}	
+			}
+			return null;
+		}
+	}
+	
+	
 	private void buildUndeclaredIdentifierError(Token token){
 		String error = "ERROR: [Line : " + token.getLineNum() + "] undeclared identifier <" + token.getValue() + ">";
 		this.errorMessages.add(error);
 	}
 	
+	private void incompatibleTypeError(Token token, String expectedType){
+		String error = "ERROR: [Line : " + token.getLineNum() + "] " + token.getIndicator() + " incompatibile with type " + expectedType;
+		this.errorMessages.add(error);
+	}
+	
+	private void incompatibleTypeError(String identifier, Token token, String expectedType){
+		String error = "ERROR: [Line : " + token.getLineNum() + "] " + identifier + " incompatibile with type " + expectedType;
+		this.errorMessages.add(error);
+	}
 	
 		
 	

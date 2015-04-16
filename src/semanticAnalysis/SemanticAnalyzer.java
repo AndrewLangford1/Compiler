@@ -106,7 +106,7 @@ public class SemanticAnalyzer {
 	}
 	
 	
-	/**
+	/**			
 	 * handles scope checking for statement lists.
 	 * 
 	 * @param currentAstNode the current node visiting on the AST	
@@ -122,10 +122,10 @@ public class SemanticAnalyzer {
 			
 			case("WhileStatement"):{
 
-	
-			}
+				
+			}	
 			
-			break;
+			break;	
 			
 			case("IfStatement"):{
 				
@@ -193,12 +193,12 @@ public class SemanticAnalyzer {
 		//decrement the scope because we finished all statements in this block
 		currentScope --;
 		
-	}
+	}				
 	
 	private void handleWhileStatement(){
 		
-		
-		
+			
+			
 		
 		
 		
@@ -212,15 +212,15 @@ public class SemanticAnalyzer {
 	private void handleAssignmentStatement(Node assignmentNode, int currentScope){
 		
 	}
-	
+		
 	private void handlePrintStatement(int currentScope){
 		
 		
 	}
 		
 		
-	
-	/**
+				
+	/**								
 	 * 
 	 * @param scope the current scope node
 	 * @param id the placeholder of the id
