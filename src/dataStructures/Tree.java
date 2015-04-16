@@ -134,6 +134,7 @@ public class Tree{
 		Node branchNode = new Node();
 		branchNode.setValue(value);
 		branchNode.setLeafNode(false);
+		branchNode.setToken(token);
 		
 		//if there's no root node, make this node the root
 		if(this.root == null){

@@ -57,11 +57,10 @@ public class Compiler {
 			
 			
 			// TODO semantic analyze CST
-			
-			semanticAnalyze(cst);
-			
-			
-		
+			AbstractSyntaxTree ast = semanticAnalyze(cst);
+			if(ast == null){
+				killCompilation();
+			}
 			
 		} catch(Exception ex){
 			System.out.println("error found in main Compilation Function");
@@ -143,11 +142,10 @@ public class Compiler {
 			
 			Parser parser = new Parser(tokenStream);
 			
-			//parse the input
-			Tree cst = parser.parse();		
+			//parse the input and return cst if successful, null otherwise
+			return parser.parse();		
 			
-			//return the cst if successful
-			return cst;
+		
 		} catch (Exception e) {
 			System.out.println("Error during Parse Phase");
 			e.printStackTrace();
@@ -159,7 +157,7 @@ public class Compiler {
 	}
 	
 	
-	/**
+	/**	
 	 * 
 	 * takes in a CST, generates an AST, and performs scope and type checking
 	 * 
@@ -169,16 +167,16 @@ public class Compiler {
 	private static AbstractSyntaxTree semanticAnalyze(Tree cst){
 		try {			
 			SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(cst);
-			
-			semanticAnalyzer.analyze();
-					
-			return semanticAnalyzer.getAbstractSyntaxTree();
+				
+			//returns an AST or null if unsuccessul
+			return semanticAnalyzer.analyze();
 		} catch (Exception e) {
 			System.out.println("Error during Semantic Analysis Phase");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+		//if something breaks, return null and kill compilation
 		return null;
 	}
 	

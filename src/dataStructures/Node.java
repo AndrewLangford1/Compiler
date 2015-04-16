@@ -29,10 +29,14 @@ public class Node {
 	
 	
 	/**
-	 * This really shouldnt be here.
-	 * Need to go back and modularize this better!
+	 *TODO
+	 * This really shouldnt be here....only nodes in symbol table need this data but oh well.
+	 * Need to go back and modularize this better! (if theres time
 	 */
 	private HashMap<String, SymbolEntry> entryData;
+	private int scopeId;
+	
+	
 		
 //--Constructors--//
 	
@@ -58,6 +62,20 @@ public class Node {
 //--Methods--//
 	
 
+
+	/**
+	 * @return the scopeId
+	 */
+	public int getScopeId() {
+		return scopeId;
+	}
+
+	/**
+	 * @param scopeId the scopeId to set
+	 */
+	public void setScopeId(int scopeId) {
+		this.scopeId = scopeId;
+	}
 
 	/**
 	 * returns the parent node of this node
@@ -205,4 +223,21 @@ public class Node {
 		else
 			return true;
 	}
+	
+	
+	/**
+	 * 
+	 * 
+	 * @return true if the node has a parent, false otherwise
+	 */
+	public boolean hasParent(){
+		if(this.parent == null){
+			return false;
+		}
+		else{
+			return true;
+		}
+		
+	}
+
 }

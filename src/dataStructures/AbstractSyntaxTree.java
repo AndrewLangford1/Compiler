@@ -155,7 +155,7 @@ public class AbstractSyntaxTree extends Tree {
 					cstToAst(nodeChildren.get(0));
 				}
 				
-				break;
+				break;	
 				
 				case("IntExpr") :{
 					
@@ -191,8 +191,12 @@ public class AbstractSyntaxTree extends Tree {
 				
 				case("StringExpr") :{
 					String leafValue = handleStringExpr(currentCstNode);
-					//TODO generate a new Token or something here.
-					addLeafNode(leafValue);
+					
+					Token stringToken = new Token();
+					
+					stringToken.setIndicator("string");
+					
+					addLeafNode(leafValue, stringToken);
 				}
 				
 				break;
@@ -243,7 +247,7 @@ public class AbstractSyntaxTree extends Tree {
 				case("type"):{
 					//type nonterminal will be first child, grab that and add a leaf
 					Node leafNode = nodeChildren.get(0);
-					addLeafNode(leafNode.getValue(), leafNode.getToken());
+					addLeafNode(leafNode.getToken().getValue(), leafNode.getToken());
 				}
 				
 				break;
@@ -253,7 +257,7 @@ public class AbstractSyntaxTree extends Tree {
 					
 					//char nonterminal will be first child, grab that and add a leaf.
 					Node leafNode = nodeChildren.get(0);
-					addLeafNode(leafNode.getValue(), leafNode.getToken());
+					addLeafNode(leafNode.getToken().getValue(), leafNode.getToken());
 				}
 				
 				break;
@@ -261,28 +265,28 @@ public class AbstractSyntaxTree extends Tree {
 				case("digit") :{
 					//digit nonterminal will be first child, grab that and add a leaf
 					Node leafNode = nodeChildren.get(0);
-					addLeafNode(leafNode.getValue(), leafNode.getToken());
+					addLeafNode(leafNode.getToken().getValue(), leafNode.getToken());
 				}
 				
 				break;
 				
 				case("boolop"):{
 					Node branchNode = nodeChildren.get(0);
-					addBranchNode(branchNode.getValue(), branchNode.getToken());
+					addBranchNode(branchNode.getToken().getValue(), branchNode.getToken());
 				}
 				
 				break;
 				
 				case("boolval"):{
 					Node leafNode = nodeChildren.get(0);
-					addLeafNode(leafNode.getValue(), leafNode.getToken());
+					addLeafNode(leafNode.getToken().getValue(), leafNode.getToken());
 				}
 				
 				break;
 				
 				case("intop"):{
 					Node branchNode = nodeChildren.get(0);
-					addBranchNode(branchNode.getValue(), branchNode.getToken());
+					addBranchNode(branchNode.getToken().getValue(), branchNode.getToken());
 				}
 				
 				break;
