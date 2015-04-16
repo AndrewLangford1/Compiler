@@ -9,7 +9,7 @@ import dataStructures.Token;
  * Class to break a source file down into a token stream to be passed on to the parser.
  * Handles token building, and lexical errors.
  */
-
+	
 public class Lexer {
 	
 	

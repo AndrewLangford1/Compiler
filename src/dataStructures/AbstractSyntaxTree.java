@@ -101,7 +101,7 @@ public class AbstractSyntaxTree extends Tree {
 				break;
 				
 				case("AssignmentStatement") :{
-					addBranchNode(currentCstNodeValue);
+					addBranchNode(currentCstNodeValue, currentCstNode.getChildren().get(1).getToken());
 					//heading towards the ID
 					cstToAst(nodeChildren.get(0));
 					//heading towards the Expr
@@ -194,7 +194,7 @@ public class AbstractSyntaxTree extends Tree {
 					
 					Token stringToken = new Token();
 					
-					stringToken.setIndicator("STRING");
+					stringToken.setIndicator("string");
 					
 					addLeafNode(leafValue, stringToken);
 				}

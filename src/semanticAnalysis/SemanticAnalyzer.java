@@ -106,9 +106,9 @@ public class SemanticAnalyzer {
 	}
 	
 	
-	/**			
-	 * handles scope checking for statement lists.
-	 * 
+	/**				
+	 * handles scope checking for statement lists.	
+	 * 					
 	 * @param currentAstNode the current node visiting on the AST	
 	 * @param currentScope current scope marker
 	 */
@@ -126,7 +126,7 @@ public class SemanticAnalyzer {
 			}	
 			
 			break;	
-			
+																											
 			case("IfStatement"):{
 				
 			}
