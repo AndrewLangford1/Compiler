@@ -1,9 +1,11 @@
 package CodeGen;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import dataStructures.AbstractSyntaxTree;
 import dataStructures.Node;
+import dataStructures.StaticTable;
 
 
 /**
@@ -67,6 +69,16 @@ public class CodeGenerator {
 	
 		//the AST to generate code from
 		private AbstractSyntaxTree ast;
+		
+		private int scopeCounter;
+		
+		private int currentByte;
+		
+		private int[] codeTable;
+		
+		private StaticTable staticTable;
+		
+		private HashMap<String, Integer> jumpTable;
 	
 	
 	
@@ -78,7 +90,11 @@ public class CodeGenerator {
 	 */
 	public CodeGenerator(AbstractSyntaxTree ast){
 		this.ast = ast;
-		
+		this.scopeCounter = 0;
+		this.currentByte = 0;	
+		this.codeTable = new int[256];
+		this.staticTable = new StaticTable();
+		this.jumpTable = new HashMap<String, Integer>();
 	}
 	
 	
@@ -181,8 +197,28 @@ public class CodeGenerator {
 		Node type = children.get(0);
 		Node identifier = children.get(1);
 		switch(type.getValue()){
-		
-		
+			case("int"):{
+				
+			}
+			
+			break;
+			
+			case("string"):{
+				
+				
+			}
+			
+			case("boolean"):{
+				
+				
+			}
+			
+			break;
+			
+			default:{
+				
+				
+			}
 		}
 		
 	}
@@ -194,6 +230,9 @@ public class CodeGenerator {
 	 * @param currentAstNode The block node
 	 */
 	private void handleBlock(Node currentAstNode) {
+		
+		scopeCounter += 1;
+		
 		for(Node node : currentAstNode.getChildren())
 			this.generateStatementCode(node);
 		
