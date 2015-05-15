@@ -47,7 +47,7 @@ public class Compiler {
 			if(cst == null){
 				killCompilation();
 			}
-			
+				
 			
 			// TODO semantic analyze CST
 			AbstractSyntaxTree ast = semanticAnalyze(cst);

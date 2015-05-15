@@ -82,7 +82,7 @@ public class CodeGenerator {
 		
 		private int heapPointer;
 		
-		private final String INTTEMP = "FF";
+		private final String TEMPREGISTER = "FF";
 	
 	
 	
@@ -146,8 +146,8 @@ public class CodeGenerator {
 		addByteToHeap("00");
 		for(int i = stringToAdd.length()-1; i>=0; i--){
 			char characterToWrite = stringToAdd.charAt(i);
-			int asInteger = Character.getNumericValue(characterToWrite);
-			String hexRepresentation = Integer.toHexString(asInteger);
+			String hexRepresentation = String.format("%02x", (int) characterToWrite);
+		
 			if(hexRepresentation.length() <2){
 				hexRepresentation = "0" + hexRepresentation;
 			}
@@ -331,7 +331,7 @@ public class CodeGenerator {
 		generateStatementCode(rightOperand);
 		//store the accumulator, going to use FF for integer operations
 		addByte(OpCode.STOREACC.getOpcode());
-		addByte(INTTEMP);
+		addByte(TEMPREGISTER);
 		addByte("00");
 		
 		//load the accumulator with the leftmost operand (has to be a digit)
@@ -339,7 +339,7 @@ public class CodeGenerator {
 		
 		//add the contents of the accumulator with the temporary register
 		addByte(OpCode.ADDWITHCARRY.getOpcode());
-		addByte(INTTEMP);
+		addByte(TEMPREGISTER);
 		addByte("00");
 		return null;
 	}
@@ -387,6 +387,8 @@ public class CodeGenerator {
 		if(exprNode.getValue().matches("[a-z]")){
 			SymbolEntry entry = exprNode.getSymbolTableData();
 			String type = entry.getType();
+			
+			//print integer
 			if(type.matches("int")){
 				//load y register with the contents of the address for this variable
 				String temp = staticTable.getTempLocationFromVar(exprNode.getValue() + "@" + entry.getScope());
@@ -394,6 +396,7 @@ public class CodeGenerator {
 				addByte(temp);
 				addByte("XX");
 				
+				//tell system were printing an int and then make system call
 				addByte(OpCode.LOADXREGWITHCONST.getOpcode());
 				addByte("01");
 				addByte("FF");
@@ -403,8 +406,19 @@ public class CodeGenerator {
 				
 			}
 			
+			//print string
 			if(type.matches("string")){
+				//load y register with the contents of the address for this variable
+				String temp = staticTable.getTempLocationFromVar(exprNode.getValue() + "@" + entry.getScope());
 				
+				addByte(OpCode.LOADYREGFROMMEM.getOpcode());
+				addByte(temp);
+				addByte("XX");
+				
+				//tell system were printing a string and then make system call
+				addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+				addByte("02");
+				addByte("FF");
 			}
 		}
 		
@@ -432,6 +446,20 @@ public class CodeGenerator {
 		}
 		
 		if(exprNode.getValue().matches("\"([^\"]*)\"")){
+			handleCharList(exprNode);
+			addByte(OpCode.STOREACC.getOpcode());
+			addByte(TEMPREGISTER);
+			addByte("00");
+			
+			//load y from the temp register
+			addByte(OpCode.LOADYREGFROMMEM.getOpcode());
+			addByte(TEMPREGISTER);
+			addByte("00");
+			
+			//tell system were printing a string and then make system call
+			addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+			addByte("02");
+			addByte("FF");
 		
 		}
 		
@@ -440,10 +468,10 @@ public class CodeGenerator {
 			handleAdditionOperation(exprNode);
 			//store accumulator in a temp location
 			addByte(OpCode.STOREACC.getOpcode());
-			addByte(INTTEMP);
+			addByte(TEMPREGISTER);
 			addByte("00");
 			addByte(OpCode.LOADYREGFROMMEM.getOpcode());
-			addByte(INTTEMP);
+			addByte(TEMPREGISTER);
 			addByte("00");
 			
 			addByte(OpCode.LOADXREGWITHCONST.getOpcode());
@@ -502,6 +530,9 @@ public class CodeGenerator {
 				//load ACC with 00
 				addByte(OpCode.LOADACCWITHCONST.getOpcode());
 				addByte("00");
+				//Store the ACC in temp location, backpatching will happen later.
+				addByte(OpCode.STOREACC.getOpcode());
+				
 				//create new entry in the static table. Will fill in string location in the heap later on
 				String temp = staticTable.addEntry(identifier.getValue(), idEntry.getScope(), staticTable.getSize(), "string");
 				addByte(temp);
