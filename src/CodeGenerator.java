@@ -78,7 +78,7 @@ public class CodeGenerator {
 		
 		private HashMap<String, Integer> jumpTable;
 		
-		private final int MAXPROGRAMSIZE = 255;
+		private final int MAXPROGRAMSIZE = 256;
 		
 		private int heapPointer;
 		
@@ -96,13 +96,13 @@ public class CodeGenerator {
 		this.ast = ast;
 		this.scopeCounter = 0;
 		this.currentByte = 0;	
-		this.codeTable = new String[255];
+		this.codeTable = new String[256];
 		for(int i =0; i <codeTable.length; i++){
 			codeTable[i] = "00";
 		}
 		this.staticTable = new StaticTable();
 		this.jumpTable = new HashMap<String, Integer>();
-		this.heapPointer = 255;
+		this.heapPointer = 254;
 	}
 	
 	
@@ -134,6 +134,26 @@ public class CodeGenerator {
 		}
 		// TODO Auto-generated method stub
 		
+	}
+	
+	/**
+	 * 
+	 * @param stringToAdd the string we wish to add to the heap.
+	 * @return the beginning of 
+	 */
+	private int addStringToHeap(String stringToAdd){
+		//null terminate the string
+		addByteToHeap("00");
+		for(int i = stringToAdd.length()-1; i>=0; i--){
+			char characterToWrite = stringToAdd.charAt(i);
+			int asInteger = Character.getNumericValue(characterToWrite);
+			String hexRepresentation = Integer.toHexString(asInteger);
+			if(hexRepresentation.length() <2){
+				hexRepresentation = "0" + hexRepresentation;
+			}
+			addByteToHeap(hexRepresentation.toUpperCase());
+		}
+		return heapPointer + 1;
 	}
 	
 	private void backPatchJumps(){
@@ -247,7 +267,20 @@ public class CodeGenerator {
 
 
 	private String handleCharList(Node currentAstNode) {
-		// TODO Auto-generated method stub
+		//add the string to the heap
+		String value= currentAstNode.getValue().replace("\"", "");
+		int sLocation = addStringToHeap(value);
+		
+		//convert the location of the beginning of the string to hex
+		String hexRepresentation = Integer.toHexString(sLocation);
+		if(hexRepresentation.length() < 2){
+			hexRepresentation = "0" + hexRepresentation;
+		}
+	
+		//load the accumulator with the beggining of the string in memory (in the heap)
+		addByte(OpCode.LOADACCWITHCONST.getOpcode());
+		addByte(hexRepresentation.toUpperCase());
+		
 		return null;
 	}
 
@@ -342,6 +375,10 @@ public class CodeGenerator {
 	}
 
 
+	/**
+	 * Prints integers and strings to the console
+	 * @param currentAstNode the print statement node
+	 */
 	private void handlePrintStatement(Node currentAstNode) {
 		Node exprNode = currentAstNode.getChildren().get(0);
 		
@@ -523,12 +560,25 @@ public class CodeGenerator {
 	private void addByte(String byteToAdd){
 		System.out.println("Adding " + byteToAdd + " to the target file" );
 		
-		if(currentByte> MAXPROGRAMSIZE){
+		//if 
+		if(currentByte>MAXPROGRAMSIZE || currentByte>= heapPointer){
 			codeOverFlow();
 		}
 		else{
 			codeTable[currentByte] = byteToAdd;
 			currentByte++;
+		}
+		
+	}
+	
+	private void addByteToHeap(String byteToAdd){
+		System.out.println("Adding " + byteToAdd + "to the heap");
+		if(heapPointer <= currentByte || heapPointer <= 0){
+			codeOverFlow();
+		}
+		else{
+			codeTable[heapPointer] = byteToAdd;
+			heapPointer --;
 		}
 		
 	}

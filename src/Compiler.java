@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * 		
+ * 			
  * 
  * @author Andrew	
  * 
@@ -53,18 +53,16 @@ public class Compiler {
 			AbstractSyntaxTree ast = semanticAnalyze(cst);
 			
 			if(ast == null){
-				killCompilation();
+				killCompilation();	
 			}
 			
 			String [] code = generateCode(ast);
-			String printable = "";
+			
 			for(int i =0; i<code.length; i++ ){
-				if(i%16 == 0 && i != 0){
-					System.out.println(printable);
-					printable = "";
-				}	
-				
-				printable += code[i] + " ";
+				if(i%16 ==0 && i>0){
+					System.out.println();
+				}
+				System.out.print(code[i] + " ");
 			}
 			
 			
@@ -156,7 +154,7 @@ public class Compiler {
 			System.out.println("Error during Parse Phase");
 			e.printStackTrace();
 		}
-		
+			
 		
 		//return null if something went wrong
 		return null;
@@ -181,7 +179,7 @@ public class Compiler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+			
 		//if something breaks, return null and kill compilation
 		return null;
 	}
