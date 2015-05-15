@@ -1,4 +1,9 @@
 {
-	print(2)
+
+	int a
+	a = 4 + 2 + 4 + a
+
+	print(a)
+	print(2+3+4+a)
 
 }$

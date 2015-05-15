@@ -354,8 +354,12 @@ public class CodeGenerator {
 				//load y register with the contents of the address for this variable
 				String temp = staticTable.getTempLocationFromVar(exprNode.getValue() + "@" + entry.getScope());
 				addByte(OpCode.LOADYREGFROMMEM.getOpcode());
-				addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+				addByte(temp);
+				addByte("XX");
 				
+				addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+				addByte("01");
+				addByte("FF");
 			}
 			
 			if(type.matches("boolean")){
@@ -367,8 +371,23 @@ public class CodeGenerator {
 			}
 		}
 		
-		if(exprNode.getValue().matches("[0-9]")){
 		
+		//print an identifier
+		if(exprNode.getValue().matches("[0-9]")){
+			//load the y reg with a constant
+			addByte(OpCode.LOADYREGWITHCONST.getOpcode());
+			
+			//evaluate the digit to be printed
+			String exprVal = exprNode.getValue();
+			String hexRepresentation = Integer.toHexString(Integer.valueOf(exprVal));
+			if(hexRepresentation.length()<2){
+				hexRepresentation = "0" + hexRepresentation;
+			}
+			addByte(hexRepresentation.toUpperCase());
+			
+			addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+			addByte("01");
+			addByte("FF");
 		}
 		
 		if(exprNode.getValue().matches("true|false")){
@@ -380,6 +399,19 @@ public class CodeGenerator {
 		}
 		
 		if(exprNode.getValue().matches("\\+")){
+			//should perform addition, leaving the value to be printed in the accumulator
+			handleAdditionOperation(exprNode);
+			//store accumulator in a temp location
+			addByte(OpCode.STOREACC.getOpcode());
+			addByte(INTTEMP);
+			addByte("00");
+			addByte(OpCode.LOADYREGFROMMEM.getOpcode());
+			addByte(INTTEMP);
+			addByte("00");
+			
+			addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+			addByte("01");
+			addByte("FF");
 	
 		}
 
