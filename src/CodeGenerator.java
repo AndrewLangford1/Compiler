@@ -79,6 +79,7 @@ public class CodeGenerator {
 		private HashMap<String, Integer> jumpTable;
 		
 		private final int MAXPROGRAMSIZE = 255;
+		private final String INTTEMP = "FF";
 	
 	
 	
@@ -259,13 +260,23 @@ public class CodeGenerator {
 
 	private String handleAdditionOperation(Node currentAstNode) {
 		ArrayList<Node> operands = currentAstNode.getChildren();
-		/**
-		 * this should load the accumulator with whatever the right operand contains
-		 */
-		generateStatementCode(operands.get(1));
+		Node leftOperand = operands.get(0);
+		Node rightOperand = operands.get(1);
 		
-	
+		//load acc with whatever the right operand is
+		generateStatementCode(rightOperand);
+		//store the accumulator, going to use FF for integer operations
+		addByte(OpCode.STOREACC.getOpcode());
+		addByte(INTTEMP);
+		addByte("00");
+		
+		//load the accumulator with the leftmost operand (has to be a digit)
+		handleDigit(leftOperand);
+		
+		//add the contents of the accumulator with the temporary register
 		addByte(OpCode.ADDWITHCARRY.getOpcode());
+		addByte(INTTEMP);
+		addByte("00");
 		return null;
 	}
 
