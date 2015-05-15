@@ -24,7 +24,7 @@ public class StaticTable {
 	
 	
 	
-	public String addEntry(String id, int scope, long offset, String type){
+	public String addEntry(String id, int scope, int offset, String type){
 		String temp = "T" + (this.table.size());
 		System.out.println("adding " + temp +"to the table");
 		StaticEntry entry = new StaticEntry(temp, id, scope, offset ,type);
@@ -61,9 +61,9 @@ public class StaticTable {
 		 private String id;
 		 private int scope;
 		 private String type;
-		 private long offset;
+		 private int offset;
 		 
-		 public StaticEntry(String temp, String id, int scope, long offset, String type ){
+		 public StaticEntry(String temp, String id, int scope, int offset, String type ){
 			 this.temp = temp;
 			 this.id = id;
 			 this.scope = scope;
@@ -116,14 +116,14 @@ public class StaticTable {
 		/**
 		 * @return the offset
 		 */
-		public long getOffset() {
+		public int getOffset() {
 			return offset;
 		}
 
 		/**
 		 * @param offset the offset to set
 		 */
-		public void setOffset(long offset) {
+		public void setOffset(int offset) {
 			this.offset = offset;
 		}
 		

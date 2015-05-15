@@ -79,6 +79,9 @@ public class CodeGenerator {
 		private HashMap<String, Integer> jumpTable;
 		
 		private final int MAXPROGRAMSIZE = 255;
+		
+		private int heapPointer;
+		
 		private final String INTTEMP = "FF";
 	
 	
@@ -99,6 +102,7 @@ public class CodeGenerator {
 		}
 		this.staticTable = new StaticTable();
 		this.jumpTable = new HashMap<String, Integer>();
+		this.heapPointer = 255;
 	}
 	
 	
@@ -108,9 +112,36 @@ public class CodeGenerator {
 	 */
 	public String[] generateProgramCode(){
 		generateStatementCode(ast.getRoot());
+		//add a break to the end of the code.
+		addByte("00");
+		backPatchStatic();
+		backPatchJumps();
 		return codeTable;
 	}
 	
+	private void backPatchStatic() {
+		for(int i =0; i < codeTable.length; i++){
+			StaticTable.StaticEntry entry = staticTable.getEntryFromTable(codeTable[i]);
+			if(entry!= null){
+				int staticPlacement = currentByte + entry.getOffset();
+				String hexRepresentation = Integer.toHexString(staticPlacement);
+				if(hexRepresentation.length()<2){
+					hexRepresentation = "0" + hexRepresentation;
+				}
+				codeTable[i] = hexRepresentation.toUpperCase();
+				codeTable[i+1] = "00";
+			}
+		}
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private void backPatchJumps(){
+		
+		
+	}
+
+
 	/**
 	 * Generates code for each statement. Each Statement will return null, but any expression type things
 	 * will return a string (usually reporting back to statement calls)
@@ -312,8 +343,55 @@ public class CodeGenerator {
 
 
 	private void handlePrintStatement(Node currentAstNode) {
+		Node exprNode = currentAstNode.getChildren().get(0);
 		
 		
+		//attempting to print a identifier
+		if(exprNode.getValue().matches("[a-z]")){
+			SymbolEntry entry = exprNode.getSymbolTableData();
+			String type = entry.getType();
+			if(type.matches("int")){
+				//load y register with the contents of the address for this variable
+				String temp = staticTable.getTempLocationFromVar(exprNode.getValue() + "@" + entry.getScope());
+				addByte(OpCode.LOADYREGFROMMEM.getOpcode());
+				addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+				
+			}
+			
+			if(type.matches("boolean")){
+				
+			}
+			
+			if(type.matches("string")){
+				
+			}
+		}
+		
+		if(exprNode.getValue().matches("[0-9]")){
+		
+		}
+		
+		if(exprNode.getValue().matches("true|false")){
+		
+		}
+		
+		if(exprNode.getValue().matches("\"([^\"]*)\"")){
+		
+		}
+		
+		if(exprNode.getValue().matches("\\+")){
+	
+		}
+
+	
+		if(exprNode.getValue().matches("!=")){
+	
+		}
+
+
+		if(exprNode.getValue().matches("==")){
+	
+		}
 	}
 
 
@@ -352,10 +430,17 @@ public class CodeGenerator {
 			break;
 			
 			case("string"):{
-				//create new entry in the static table. Will fill in string value in the heap later on
-				staticTable.addEntry(identifier.getValue(), idEntry.getScope(), staticTable.getSize(), "string");
+				//load ACC with 00
+				addByte(OpCode.LOADACCWITHCONST.getOpcode());
+				addByte("00");
+				//create new entry in the static table. Will fill in string location in the heap later on
+				String temp = staticTable.addEntry(identifier.getValue(), idEntry.getScope(), staticTable.getSize(), "string");
+				addByte(temp);
+				addByte("XX");
 		
 			}
+			
+			break;
 			
 			case("boolean"):{
 				//load ACC with 00, all integers are initialized to 0
