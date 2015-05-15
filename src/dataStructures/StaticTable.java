@@ -24,10 +24,12 @@ public class StaticTable {
 	
 	
 	
-	public void addEntry(String temp, String id, int scope, long offset){
-		StaticEntry entry = new StaticEntry(temp, id, scope, offset);
+	public String addEntry(String id, int scope, long offset, String type){
+		String temp = "T" + (this.table.size());
+		StaticEntry entry = new StaticEntry(temp, id, scope, offset ,type);
 		table.put(temp, entry);
 		entryLookup.put(id + "@" + scope, temp);
+		return temp;
 	}
 	
 	public StaticEntry getEntryFromTable(String temp){
@@ -52,17 +54,19 @@ public class StaticTable {
 	 * @author Andrew Langford
 	 *
 	 */
-	 private class StaticEntry{
+	 public class StaticEntry{
 		 
 		 private String temp;
 		 private String id;
 		 private int scope;
+		 private String type;
 		 private long offset;
 		 
-		 public StaticEntry(String temp, String id, int scope, long offset ){
+		 public StaticEntry(String temp, String id, int scope, long offset, String type ){
 			 this.temp = temp;
 			 this.id = id;
 			 this.scope = scope;
+			 this.type = type;
 			 this.offset = offset;
 		 }
 
@@ -120,10 +124,19 @@ public class StaticTable {
 		 */
 		public void setOffset(long offset) {
 			this.offset = offset;
-		}	 
+		}
+		
+		public String getType(){
+			return this.type;
+		}
+		
+		public void setType(String type){
+			this.type = type;
+		}
+	
 	}
 	 
-
-	
-
+	 public int getSize(){
+		 return table.size();
+	 }
 }

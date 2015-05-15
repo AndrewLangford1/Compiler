@@ -28,6 +28,7 @@ public class Node {
 	private String value;
 	
 	
+	
 	/**
 	 *TODO
 	 * This really shouldnt be here....only nodes in symbol table need this data but oh well.
@@ -35,6 +36,8 @@ public class Node {
 	 */
 	private HashMap<String, SymbolEntry> entryData;
 	private int scopeId;
+	
+	private SymbolEntry symbolTableData;
 	
 	
 		
@@ -47,6 +50,7 @@ public class Node {
 		this.children = new ArrayList<Node>();
 		this.parent = null;
 		this.entryData = new HashMap<String, SymbolEntry>();
+		this.symbolTableData = null;
 	}
 	
 	/**
@@ -56,6 +60,7 @@ public class Node {
 		this.children = new ArrayList<Node>();
 		this.parent = parent;
 		this.entryData = new HashMap<String, SymbolEntry>();
+		this.symbolTableData = null;
 	}
 	
 	
@@ -238,6 +243,20 @@ public class Node {
 			return true;
 		}
 		
+	}
+
+	/**
+	 * @return the symbolTableData
+	 */
+	public SymbolEntry getSymbolTableData() {
+		return symbolTableData;
+	}
+
+	/**
+	 * @param symbolTableData the symbolTableData to set
+	 */
+	public void setSymbolTableData(SymbolEntry symbolTableData) {
+		this.symbolTableData = symbolTableData;
 	}
 
 }

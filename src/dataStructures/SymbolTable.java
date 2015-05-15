@@ -225,6 +225,8 @@ public class SymbolTable extends Tree{
 			
 			symbol.setLineDeclared(idNode.getToken().getLineNum());
 			
+			idNode.setSymbolTableData(symbol);
+			
 			//ad the symbol entry to the table
 			getCurrent().addSymbolEntry(idVal, symbol);
 			

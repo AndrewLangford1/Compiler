@@ -6,6 +6,8 @@ import java.util.HashMap;
 import dataStructures.AbstractSyntaxTree;
 import dataStructures.Node;
 import dataStructures.StaticTable;
+import dataStructures.StaticTable.StaticEntry;
+import dataStructures.Token;
 
 
 /**
@@ -74,11 +76,13 @@ public class CodeGenerator {
 		
 		private int currentByte;
 		
-		private int[] codeTable;
+		private String[] codeTable;
 		
 		private StaticTable staticTable;
 		
 		private HashMap<String, Integer> jumpTable;
+		
+		private final int MAXPROGRAMSIZE = 255;
 	
 	
 	
@@ -92,25 +96,31 @@ public class CodeGenerator {
 		this.ast = ast;
 		this.scopeCounter = 0;
 		this.currentByte = 0;	
-		this.codeTable = new int[256];
+		this.codeTable = new String[255];
+		for(int i =0; i <codeTable.length; i++){
+			codeTable[i] = "00";
+		}
 		this.staticTable = new StaticTable();
 		this.jumpTable = new HashMap<String, Integer>();
 	}
 	
 	
 	/**
-	 * Initializes Program code generation
+	 * Initializes Program code generation and returns an executable image
+	 * @return a string array containing the opcodes for the program we wish to run
 	 */
-	public void generateProgramCode(){
+	public String[] generateProgramCode(){
 		generateStatementCode(ast.getRoot());
+		return codeTable;
 	}
 	
 	/**
 	 * Generates the symbol table by iterating over an AST
 	 * @param currentAstNode the current node we are visiting on the AST
+	 * @return 
 	 * 
 	 */
-	private void generateStatementCode(Node currentAstNode){
+	private String generateStatementCode(Node currentAstNode){
 		
 		
 		switch(currentAstNode.getValue()){
@@ -163,13 +173,103 @@ public class CodeGenerator {
 
 			default :{
 				
+				if(currentAstNode.getValue().matches("[a-z]")){
+					System.out.println("Handling code gen for an identifier");
+					return handleIdentifier(currentAstNode, currentAstNode.getToken());
+	
+				}
+				
+				if(currentAstNode.getValue().matches("[0-9]")){
+					System.out.println("Handling code gen for a digit");
+					return handleDigit(currentAstNode);
+				}
+				
+				if(currentAstNode.getValue().matches("true|false")){
+					System.out.println("Handling code gen for a boolean");
+					return handleBoolVal(currentAstNode);
+				}
+				
+				if(currentAstNode.getValue().matches("\"([^\"]*)\"")){
+					System.out.println("Handling code gen for a string");
+					return handleCharList(currentAstNode);
+				}
+				
+				if(currentAstNode.getValue().matches("\\+")){
+					System.out.println("Handling code gen for an integer operation");
+					return handleAdditionOperation(currentAstNode);
+				}
+		
+			
+				if(currentAstNode.getValue().matches("!=")){
+					System.out.println("Handling code gen for a boolean (not equals) expression");
+					return handleBoolNE(currentAstNode);
+				}
+		
+	
+				if(currentAstNode.getValue().matches("==")){
+					System.out.println("Handling code gen for a boolean (equals) expression");
+					return handleBoolEq(currentAstNode);
+				}				
 			}
 		}
+		
+		return null;
+	}
+
+
+	private String handleCharList(Node currentAstNode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	private String handleDigit(Node currentAstNode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	private String handleBoolEq(Node currentAstNode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	private String handleBoolNE(Node currentAstNode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	private String handleBoolVal(Node currentAstNode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	private String handleAdditionOperation(Node currentAstNode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	private String handleIdentifier(Node currentAstNode, Token token) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 
 	private void handleAssignmentStatement(Node currentAstNode) {
-		// TODO Auto-generated method stub
+		ArrayList<Node> children = currentAstNode.getChildren();
+		Node identifier = children.get(0);
+		//get the temp location pointer from the static table
+		String tempLocation = staticTable.getTempLocationFromVar(identifier.getValue() + "@" + scopeCounter);
+		//get the entry from the temp location
+		StaticEntry tableEntry = staticTable.getEntryFromTable(tempLocation);
+		
+		//get the expression we want to evaluate and assign to the variable.
+		Node expr = children.get(1);
+		generateStatementCode(expr);
 		
 	}
 
@@ -198,19 +298,39 @@ public class CodeGenerator {
 		Node identifier = children.get(1);
 		switch(type.getValue()){
 			case("int"):{
+				//load ACC with 00, all integers are initialized to 0
+				addByte(OpCode.LOADACCWITHCONST.getOpcode());
+				addByte("00");
 				
+				//Store the ACC in temp location, backpatching will happen later.
+				addByte(OpCode.STOREACC.getOpcode());
+				
+				//create new entry in the static table.
+				String temp = staticTable.addEntry(identifier.getValue(), scopeCounter, staticTable.getSize(), "int");
+				addByte(temp);
+				addByte("XX");
 			}
 			
 			break;
 			
 			case("string"):{
-				
-				
+				//create new entry in the static table. Will fill in string value in the heap later on
+				staticTable.addEntry(identifier.getValue(), scopeCounter, staticTable.getSize(), "string");
+		
 			}
 			
 			case("boolean"):{
+				//load ACC with 00, all integers are initialized to 0
+				addByte(OpCode.LOADACCWITHCONST.getOpcode());
+				addByte("00");
 				
+				//Store the ACC in temp location, backpatching will happen later.
+				addByte(OpCode.STOREACC.getOpcode());
 				
+				//create new entry in the static table.
+				String temp = staticTable.addEntry(identifier.getValue(), scopeCounter, staticTable.getSize(), "boolean");
+				addByte(temp);
+				addByte("XX");
 			}
 			
 			break;
@@ -237,6 +357,34 @@ public class CodeGenerator {
 			this.generateStatementCode(node);
 		
 		System.out.println("Finished Generating code for this block");
+	}
+	
+	
+	
+	/**
+	 * Add an operation to the code table, if we still have memory. Else, raise an error.
+	 * @param operation
+	 */
+	private void addByte(String byteToAdd){
+		System.out.println("Adding " + byteToAdd + " to the target file" );
+		
+		if(currentByte> MAXPROGRAMSIZE){
+			codeOverFlow();
+		}
+		else{
+			codeTable[currentByte] = byteToAdd;
+			currentByte++;
+		}
+		
+	}
+	
+	
+	/**
+	 * Error to raise when the program becomes to large to be executed.
+	 */
+	private void codeOverFlow(){
+		System.out.println("This program is too large. Compilation failure");
+		System.exit(0);
 	}
 	
 }

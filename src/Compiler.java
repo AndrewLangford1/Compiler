@@ -3,6 +3,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import CodeGen.CodeGenerator;
 import semanticAnalysis.SemanticAnalyzer;
 import lexnParse.Lexer;
 import lexnParse.Parser;
@@ -58,9 +59,22 @@ public class Compiler {
 			
 			// TODO semantic analyze CST
 			AbstractSyntaxTree ast = semanticAnalyze(cst);
+			
 			if(ast == null){
 				killCompilation();
 			}
+			
+			String [] code = generateCode(ast);
+			String printable = "";
+			for(int i =0; i<code.length; i++ ){
+				if(i%16 == 0 && i != 0){
+					System.out.println(printable);
+					printable = "";
+				}	
+				
+				printable += code[i] + " ";
+			}
+			
 			
 		} catch(Exception ex){
 			System.out.println("error found in main Compilation Function");
@@ -177,6 +191,24 @@ public class Compiler {
 		}
 		
 		//if something breaks, return null and kill compilation
+		return null;
+	}
+	
+	
+	
+	/**
+	 * Generates code from the ast and returns a string array to be printed to the console and written to a file.
+	 * @param ast the Abstract syntax tree we wish to generate code for
+	 * @return the string array of opcodes we want to exectute
+	 */
+	private static String[] generateCode(AbstractSyntaxTree ast){
+		try{
+			CodeGenerator codeGen = new CodeGenerator(ast);
+			return codeGen.generateProgramCode();
+		}catch(Exception e){
+			System.out.println("Error generating code.");
+			e.printStackTrace();
+		}
 		return null;
 	}
 	
