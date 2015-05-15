@@ -3,18 +3,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import CodeGen.CodeGenerator;
-import semanticAnalysis.SemanticAnalyzer;
-import lexnParse.Lexer;
-import lexnParse.Parser;
-import dataStructures.AbstractSyntaxTree;
-import dataStructures.Token;
-import dataStructures.Tree;
-
 /**
+ * 	
  * 
- * 
- * @author Andrew
+ * @author Andrew	
  * 
  * Main Compiler class
  *
@@ -193,7 +185,7 @@ public class Compiler {
 		//if something breaks, return null and kill compilation
 		return null;
 	}
-	
+		
 	
 	
 	/**
@@ -208,7 +200,7 @@ public class Compiler {
 		}catch(Exception e){
 			System.out.println("Error generating code.");
 			e.printStackTrace();
-		}
+		}		
 		return null;
 	}
 	
