@@ -846,7 +846,7 @@ public class CodeGenerator {
 		addByte(jumpLoop);
 		
 		int after = currentByte;
-		jumpTable.put(jumpLoop, (255 - (after - loopLocation)));	
+		jumpTable.put(jumpLoop, (257 - (after - loopLocation)));	
 		jumpTable.put(jumpNotEqual, after - before);
 		
 	}
