@@ -358,6 +358,15 @@ public class CodeGenerator {
 	 * 
 	 */
 	private void handleBoolEq(Node currentAstNode) {
+		//get the left operand
+		Node leftOperand = currentAstNode.getChildren().get(0);
+		
+		//get the right operand
+		Node rightOperand = currentAstNode.getChildren().get(1);
+		
+		if(rightOperand.getValue().matches("!=|==")){
+			iDontLikeNestedBooleans();
+		}
 		
 	}
 
@@ -367,6 +376,16 @@ public class CodeGenerator {
 	 * @param currentAstNode the '!=' node
 	 */
 	private void handleBoolNE(Node currentAstNode) {
+		//get the left operand
+		Node leftOperand = currentAstNode.getChildren().get(0);
+		
+		//get the right operand
+		Node rightOperand = currentAstNode.getChildren().get(1);
+		
+		if(rightOperand.getValue().matches("!=|==")){
+			iDontLikeNestedBooleans();
+		}
+	
 	
 	}
 
@@ -775,6 +794,19 @@ public class CodeGenerator {
 	 */
 	private void codeOverFlow(){
 		System.out.println("This program is too large. Compilation failure");
+		System.exit(0);
+	}
+	
+	/**
+	 * Couldnt get nested booleans working in the time frame.
+	 */
+	private void iDontLikeNestedBooleans(){
+		System.out.println("Sorry, nested booleans are a bitch.");
+		System.exit(0);
+	}
+	
+	private void iDontLikeComparingStrings(){
+		System.out.println("Sorry, comparing strings is nauseating.");
 		System.exit(0);
 	}
 	
