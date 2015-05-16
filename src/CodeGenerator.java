@@ -194,6 +194,23 @@ public class CodeGenerator {
 	 * patches temporary jump locations
 	 */
 	private void backPatchJumps(){
+	for(int i =0; i < codeTable.length; i++){
+			
+			//have to check every cell for temp locations
+			Integer location = jumpTable.get(codeTable[i]);
+			if(location != null){
+				
+				//currentByte pointer will hold the first available address
+				int placement = location;
+				String hexRepresentation = Integer.toHexString(placement);
+				if(hexRepresentation.length()<2){
+					hexRepresentation = "0" + hexRepresentation;
+				}
+				
+				//replace the temporary location with the actual location
+				codeTable[i] = hexRepresentation.toUpperCase();
+			}
+		}
 		
 		
 	}
@@ -364,9 +381,151 @@ public class CodeGenerator {
 		//get the right operand
 		Node rightOperand = currentAstNode.getChildren().get(1);
 		
+		//didnt have time to do nested booleans
 		if(rightOperand.getValue().matches("!=|==")){
 			iDontLikeNestedBooleans();
 		}
+		
+	///-----LEFT OPERAND ---//
+		if(leftOperand.getValue().matches("[a-z]")){
+	
+			SymbolEntry entry = leftOperand.getSymbolTableData();
+			String type = entry.getType();
+				
+			//print integer
+			if(type.matches("int")){
+				//get the symbol table entry for the identifier
+				SymbolEntry idEntry  = leftOperand.getSymbolTableData();
+						
+				//get the temp location from the static table
+				String location = staticTable.getTempLocationFromVar(leftOperand.getValue()+"@" + idEntry.getScope());
+						
+				addByte(OpCode.LOADXREGFROMMEM.getOpcode());
+				addByte(location);
+				addByte("XX");
+				
+			}
+				
+			if(type.matches("boolean")){
+				//get the symbol table entry for the identifier
+				SymbolEntry idEntry  = leftOperand.getSymbolTableData();
+					
+				//get the temp location from the static table
+				String location = staticTable.getTempLocationFromVar(leftOperand.getValue()+"@" + idEntry.getScope());
+					
+				addByte(OpCode.LOADXREGFROMMEM.getOpcode());
+				addByte(location);
+				addByte("XX");
+			
+			}
+				
+			if(type.matches("string")){
+				iDontLikeComparingStrings();
+			}
+		}
+		
+		//if true, load the x reg with true
+		if(leftOperand.getValue().matches("true")){
+			addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+			addByte("01");	
+		}
+			
+		//if false, load x reg with false
+		if(leftOperand.getValue().matches("false")){
+			addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+			addByte("00");	
+		}
+		
+		if(leftOperand.getValue().matches("[0-9]")){
+			addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+			//build the hex representation
+			String integerAsHex = Integer.toHexString(Integer.valueOf(leftOperand.getValue()));
+			if(integerAsHex.length() < 2){
+				integerAsHex = "0" + integerAsHex;
+			}
+			//load the byte into the accumulator
+			addByte(integerAsHex);	
+		}
+		
+		//-----RIGHT OPERAND
+		if(rightOperand.getValue().matches("[a-z]")){
+			
+			SymbolEntry entry = rightOperand.getSymbolTableData();
+			String type = entry.getType();
+				
+			//print integer
+			if(type.matches("int")){
+				//get the symbol table entry for the identifier
+				SymbolEntry idEntry  = rightOperand.getSymbolTableData();
+						
+				//get the temp location from the static table
+				String location = staticTable.getTempLocationFromVar(rightOperand.getValue()+"@" + idEntry.getScope());
+						
+				addByte(OpCode.COMPAREMEMTOX.getOpcode());
+				addByte(location);
+				addByte("XX");
+				
+			}
+				
+			if(type.matches("boolean")){
+				//get the symbol table entry for the identifier
+				SymbolEntry idEntry  = rightOperand.getSymbolTableData();
+					
+				//get the temp location from the static table
+				String location = staticTable.getTempLocationFromVar(rightOperand.getValue()+"@" + idEntry.getScope());
+					
+				addByte(OpCode.COMPAREMEMTOX.getOpcode());
+				addByte(location);
+				addByte("XX");
+			
+			}
+				
+			if(type.matches("string")){
+				iDontLikeComparingStrings();
+			}
+		}
+		
+		//if true, load the x reg with true
+		if(rightOperand.getValue().matches("true")){
+			addByte(OpCode.LOADACCWITHCONST.getOpcode());
+			addByte("01");	
+			addByte(OpCode.STOREACC.getOpcode());
+			addByte(TEMPREGISTER);
+			addByte("00");
+			addByte(OpCode.COMPAREMEMTOX.getOpcode());
+			addByte(TEMPREGISTER);
+			addByte("00");
+		}
+			
+		//if false, load x reg with false
+		if(rightOperand.getValue().matches("false")){
+			addByte(OpCode.LOADACCWITHCONST.getOpcode());
+			addByte("00");
+			addByte(OpCode.STOREACC.getOpcode());
+			addByte(TEMPREGISTER);
+			addByte("00");
+			addByte(OpCode.COMPAREMEMTOX.getOpcode());
+			addByte(TEMPREGISTER);
+			addByte("00");
+		}
+		
+		if(rightOperand.getValue().matches("[0-9]")){
+			addByte(OpCode.LOADACCWITHCONST.getOpcode());
+			//build the hex representation
+			String integerAsHex = Integer.toHexString(Integer.valueOf(rightOperand.getValue()));
+			if(integerAsHex.length() < 2){
+				integerAsHex = "0" + integerAsHex;
+			}
+			//load the byte into the accumulator
+			addByte(integerAsHex);
+			addByte(OpCode.STOREACC.getOpcode());
+			addByte(TEMPREGISTER);
+			addByte("00");
+			addByte(OpCode.COMPAREMEMTOX.getOpcode());
+			addByte(TEMPREGISTER);
+			addByte("00");
+		}
+		
 		
 	}
 
@@ -376,17 +535,7 @@ public class CodeGenerator {
 	 * @param currentAstNode the '!=' node
 	 */
 	private void handleBoolNE(Node currentAstNode) {
-		//get the left operand
-		Node leftOperand = currentAstNode.getChildren().get(0);
-		
-		//get the right operand
-		Node rightOperand = currentAstNode.getChildren().get(1);
-		
-		if(rightOperand.getValue().matches("!=|==")){
-			iDontLikeNestedBooleans();
-		}
-	
-	
+		notWorking();
 	}
 
 
@@ -622,6 +771,7 @@ public class CodeGenerator {
 		
 		//print the result of a boolean not equals statement
 		if(exprNode.getValue().matches("!=")){
+			notWorking();
 	
 		}
 
@@ -638,8 +788,14 @@ public class CodeGenerator {
 	 * @param currentAstNode the if statement node
 	 */
 	private void handleIfStatement(Node currentAstNode) {
-		// TODO Auto-generated method stub
-		
+		int beforeMemLocation = currentByte;
+		generateStatementCode(currentAstNode.getChildren().get(0));
+		String jumpLocation = "J"+jumpTable.size();
+		jumpTable.put(jumpLocation, 0);
+		addByte(OpCode.BRANCH.getOpcode());
+		addByte("J"+jumpTable.size());
+		generateStatementCode(currentAstNode.getChildren().get(1));
+		jumpTable.put("J"+jumpTable.size(), currentByte - beforeMemLocation);	
 	}
 
 	
@@ -648,7 +804,11 @@ public class CodeGenerator {
 	 * @param currentAstNode the while statement node
 	 */
 	private void handleWhileStatement(Node currentAstNode) {
-		// TODO Auto-generated method stub
+		int currentMemLocation = currentByte;
+		generateStatementCode(currentAstNode.getChildren().get(0));
+		jumpTable.put("J"+jumpTable.size(), currentMemLocation);
+		addByte(OpCode.BRANCH.getOpcode());
+		generateStatementCode(currentAstNode.getChildren().get(1));
 		
 	}
 
@@ -808,6 +968,12 @@ public class CodeGenerator {
 	private void iDontLikeComparingStrings(){
 		System.out.println("Sorry, comparing strings is nauseating.");
 		System.exit(0);
+	}
+	
+	private void notWorking(){
+		System.out.println("Unfortunately boolean not equals isnt working");
+		System.exit(0);
+		
 	}
 	
 }

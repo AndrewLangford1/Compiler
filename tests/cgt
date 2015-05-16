@@ -1,15 +1,10 @@
 {
-
-	boolean b
 	
-	boolean c
+	if(1==2){
+		int x 
+		x = 4
+	}
 	
-	c= true
-	
-	b = false
-	
-	print(b)
-	
-	print(c)
+	print("hi")
 
 }$

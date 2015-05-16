@@ -57,7 +57,7 @@ public class Compiler {
 			}
 			
 			String [] code = generateCode(ast);
-			
+			System.out.println("--->Generated Code\n\n\n");
 			for(int i =0; i<code.length; i++ ){
 				if(i%16 ==0 && i>0){
 					System.out.println();
