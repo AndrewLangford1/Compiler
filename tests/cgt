@@ -1,8 +1,7 @@
 {
 
-	string s
-	s = "hi"
-	print(s)
-	print("fuck you")
+
+	boolean b
+	b = false
 
 }$
