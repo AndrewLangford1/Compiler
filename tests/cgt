@@ -1,6 +1,14 @@
 {
+
 boolean b
-b = false
-print(b)
+b = true
+
+while(true == b){
+
+	print("hi")
+
+}
+
+print("never reach me")
 
 }$

@@ -816,13 +816,38 @@ public class CodeGenerator {
 	private void handleWhileStatement(Node currentAstNode) {
 		//store the location just before the while statement so we can branch here 
 		int loopLocation= currentByte;
+		String jumpLoop = "J"+jumpTable.size();
+		jumpTable.put(jumpLoop, loopLocation);
 		
 		
+		String jumpNotEqual = "J"+jumpTable.size();
 		//generate code for the branching
 		generateStatementCode(currentAstNode.getChildren().get(0));
 	
+		//the branch if not equal bit
 		addByte(OpCode.BRANCH.getOpcode());
+		addByte(jumpNotEqual);
+		
+		int before = currentByte;
 		generateStatementCode(currentAstNode.getChildren().get(1));
+		
+		
+		addByte(OpCode.LOADACCWITHCONST.getOpcode());
+		addByte("00");
+		addByte(OpCode.STOREACC.getOpcode());
+		addByte(TEMPREGISTER);
+		addByte("00");
+		addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+		addByte("01");
+		addByte(OpCode.COMPAREMEMTOX.getOpcode());
+		addByte(TEMPREGISTER);
+		addByte("00");
+		addByte(OpCode.BRANCH.getOpcode());
+		addByte(jumpLoop);
+		
+		int after = currentByte;
+		jumpTable.put(jumpLoop, (255 - (after - loopLocation)));	
+		jumpTable.put(jumpNotEqual, after - before);
 		
 	}
 
