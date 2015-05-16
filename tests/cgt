@@ -1,10 +1,6 @@
 {
-	
-	if(1==2){
-		int x 
-		x = 4
-	}
-	
-	print("hi")
+boolean b
+b = false
+print(b)
 
 }$

@@ -1,0 +1,26 @@
+{
+	int a
+	a = 4
+	
+	int b
+	b = 4
+	boolean x
+	x= true	
+	boolean y
+	y = false
+	
+	
+	if(a == b){
+		if(a = 4){
+			print("nesting works")
+		}
+	 
+	}
+	
+	if(x == y){
+		print("shouldnt happen")
+	
+	}
+	
+	print("made it to the end bitches")
+}$

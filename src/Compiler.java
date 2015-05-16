@@ -55,7 +55,7 @@ public class Compiler {
 			if(ast == null){
 				killCompilation();	
 			}
-			
+				
 			String [] code = generateCode(ast);
 			System.out.println("--->Generated Code\n\n\n");
 			for(int i =0; i<code.length; i++ ){

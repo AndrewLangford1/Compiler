@@ -788,14 +788,24 @@ public class CodeGenerator {
 	 * @param currentAstNode the if statement node
 	 */
 	private void handleIfStatement(Node currentAstNode) {
-		int beforeMemLocation = currentByte;
+		//handle the conidtional
 		generateStatementCode(currentAstNode.getChildren().get(0));
+		//add a temp location for shits and gigs
 		String jumpLocation = "J"+jumpTable.size();
-		jumpTable.put(jumpLocation, 0);
+		
+		//add the branch statement
 		addByte(OpCode.BRANCH.getOpcode());
-		addByte("J"+jumpTable.size());
+		addByte(jumpLocation);
+		
+		//get the location before the block nonsense occurs
+		int beforeLocation = currentByte;
 		generateStatementCode(currentAstNode.getChildren().get(1));
-		jumpTable.put("J"+jumpTable.size(), currentByte - beforeMemLocation);	
+		
+		//get the location after all that shit occurs
+		int afterLocation = currentByte;
+		
+		//store that location for the jump table to deal with
+		jumpTable.put(jumpLocation, afterLocation - beforeLocation);	
 	}
 
 	
@@ -804,9 +814,13 @@ public class CodeGenerator {
 	 * @param currentAstNode the while statement node
 	 */
 	private void handleWhileStatement(Node currentAstNode) {
-		int currentMemLocation = currentByte;
+		//store the location just before the while statement so we can branch here 
+		int loopLocation= currentByte;
+		
+		
+		//generate code for the branching
 		generateStatementCode(currentAstNode.getChildren().get(0));
-		jumpTable.put("J"+jumpTable.size(), currentMemLocation);
+	
 		addByte(OpCode.BRANCH.getOpcode());
 		generateStatementCode(currentAstNode.getChildren().get(1));
 		
