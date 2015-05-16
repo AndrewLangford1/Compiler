@@ -68,20 +68,25 @@ public class CodeGenerator {
 		//the AST to generate code from
 		private AbstractSyntaxTree ast;
 		
-		private int scopeCounter;
-		
+		//current pointer on the code table
 		private int currentByte;
 		
+		//array of opcodes to be executed in the os
 		private String[] codeTable;
 		
+		//static table
 		private StaticTable staticTable;
 		
+		//jump table
 		private HashMap<String, Integer> jumpTable;
 		
+		//maximum possible size of the program
 		private final int MAXPROGRAMSIZE = 256;
 		
+		//heap pointer
 		private int heapPointer;
 		
+		//using this to store values temporarily like a temp register
 		private final String TEMPREGISTER = "FF";
 	
 	
@@ -94,9 +99,8 @@ public class CodeGenerator {
 	 */
 	public CodeGenerator(AbstractSyntaxTree ast){
 		this.ast = ast;
-		this.scopeCounter = 0;
 		this.currentByte = 0;	
-		this.codeTable = new String[256];
+		this.codeTable = new String[MAXPROGRAMSIZE];
 		for(int i =0; i <codeTable.length; i++){
 			codeTable[i] = "00";
 		}
@@ -354,7 +358,7 @@ public class CodeGenerator {
 	 * 
 	 */
 	private void handleBoolEq(Node currentAstNode) {
-		// TODO Auto-generated method stub
+		
 	}
 
 
@@ -490,7 +494,16 @@ public class CodeGenerator {
 			}
 			
 			if(type.matches("boolean")){
+				//load y register with the contents of the address for this variable
+				String temp = staticTable.getTempLocationFromVar(exprNode.getValue() + "@" + entry.getScope());
+				addByte(OpCode.LOADYREGFROMMEM.getOpcode());
+				addByte(temp);
+				addByte("XX");
 				
+				//tell system were printing an int and then make system call
+				addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+				addByte("01");
+				addByte("FF");
 			}
 			
 			//print string
@@ -509,7 +522,7 @@ public class CodeGenerator {
 		}
 		
 		
-		//print an identifier
+		//print a digit
 		if(exprNode.getValue().matches("[0-9]")){
 			//load the y reg with a constant
 			addByte(OpCode.LOADYREGWITHCONST.getOpcode());
@@ -528,8 +541,26 @@ public class CodeGenerator {
 		}
 		
 		//print a boolean value
-		if(exprNode.getValue().matches("true|false")){
+		if(exprNode.getValue().matches("true")){
+			//load y register with the contents of the address for this variable
+			addByte(OpCode.LOADYREGWITHCONST.getOpcode());
+			addByte("01");
+			
+			//tell system were printing an int and then make system call
+			addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+			addByte("01");
+			addByte("FF");
+		}
 		
+		if(exprNode.getValue().matches("false")){
+			//load y register with the contents of the address for this variable
+			addByte(OpCode.LOADYREGWITHCONST.getOpcode());
+			addByte("00");
+			
+			//tell system were printing an int and then make system call
+			addByte(OpCode.LOADXREGWITHCONST.getOpcode());
+			addByte("01");
+			addByte("FF");
 		}
 		
 		//print a string
@@ -666,7 +697,7 @@ public class CodeGenerator {
 				addByte(OpCode.STOREACC.getOpcode());
 				
 				//create new entry in the static table.
-				String temp = staticTable.addEntry(identifier.getValue(), scopeCounter, staticTable.getSize(), "boolean");
+				String temp = staticTable.addEntry(identifier.getValue(), idEntry.getScope(), staticTable.getSize(), "boolean");
 				addByte(temp);
 				addByte("XX");
 			}
@@ -689,8 +720,6 @@ public class CodeGenerator {
 	 */
 	private void handleBlock(Node currentAstNode) {
 		
-		scopeCounter += 1;
-		
 		//generate code for each statement node
 		for(Node node : currentAstNode.getChildren())
 			this.generateStatementCode(node);
@@ -708,7 +737,7 @@ public class CodeGenerator {
 		System.out.println("Adding " + byteToAdd + " to the target file" );
 		
 		//make sure the code table doesnt go over 256 bytes or heap storage starts overwriting op codes
-		if(currentByte>MAXPROGRAMSIZE || currentByte>= heapPointer){
+		if(currentByte>=MAXPROGRAMSIZE || currentByte>= heapPointer){
 			codeOverFlow();
 		}
 		//if there isnt a problem, add the byte to the code table

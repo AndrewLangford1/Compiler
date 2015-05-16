@@ -1,7 +1,15 @@
 {
 
-
 	boolean b
+	
+	boolean c
+	
+	c= true
+	
 	b = false
+	
+	print(b)
+	
+	print(c)
 
 }$
